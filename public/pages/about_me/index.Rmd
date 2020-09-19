@@ -3,7 +3,7 @@ title: "About me"
 output: html_document
 ---
 
-![](Fabian Sinn_picture.png){width=70%}
+![](Fabian Sinn_picture.png)
 
 I’m an Analytics and Management (MAM) student at London Business School (2021) currently on my educational leave from Bain & Company. I'm strongly interested in the intersection of technology and management with a focus on data analytics and behavioral biometrics. During my time at Bain, I gained experience in commercial diligence work as part of the Private Equity Group as well as Customer Experience (NPS) transformation.
 

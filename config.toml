@@ -48,8 +48,8 @@ disqusShortname = ""
       url = "#"
 
     [[params.navigation.links]]
-      name = "Blog"
-      url = "blogs"
+      name = "About me"
+      url = "pages/about_me"
 
     #[[params.navigation.links]]
     #  name = "Generic Blog"
@@ -92,6 +92,12 @@ disqusShortname = ""
     # Display your showcases here.
     
     [[params.tiles.showcase]]
+      title = "About Me"
+      subtitle = "Background, Interests and Experience"
+      image = "tiles/fabian_sinn02.png"
+      url = "pages/about_me"
+      
+    [[params.tiles.showcase]]
       title = "London Bikeshare Data"
       subtitle = "Usage patterns during COVID-19 lockdown"
       image = "tiles/pic01.jpg"
@@ -108,12 +114,6 @@ disqusShortname = ""
       subtitle = "Data exploration and Regression modeling"
       image = "tiles/beijing.jpg"
       url = "blogs/magna"
-
-    [[params.tiles.showcase]]
-      title = "About Me"
-      subtitle = "Background, Interests and Experience"
-      image = "tiles/fabian_sinn02.png"
-      url = "pages/about_me"
 
     #[[params.tiles.showcase]]
       #title = "Consequat"
