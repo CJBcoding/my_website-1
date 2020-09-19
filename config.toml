@@ -38,7 +38,7 @@ disqusShortname = ""
   # Navigation Section
   [params.navigation]
     title = "Fabian Sinn"
-    # subtitle = "By HTML5 Up"
+    subtitle = "Portfolio"
     menu = "Menu"
     # Optional logo as brand stored in img/
     # logo = "logo.png"
@@ -67,14 +67,14 @@ disqusShortname = ""
     #    url = "UrlOfLink"
 
     # Button Style 1
-    [[params.navigation.button1]]
-      name = "Get Started"
-      url = "blogs"
+    #[[params.navigation.button1]]
+    #  name = "Get Started"
+    #  url = "blogs"
 
     # Button Style 2
-    [[params.navigation.button2]]
-      name = "Log In"
-      url = "#"
+    # [[params.navigation.button2]]
+    #  name = "Log In"
+    #  url = "#"
 
 
   # Banner section
@@ -92,7 +92,7 @@ disqusShortname = ""
     # Display your showcases here.
     
     [[params.tiles.showcase]]
-      title = "Portfolio"
+      title = "Project 1"
       subtitle = "Ipsum Dolor Sit Amet"
       image = "pic01.jpg"
       url = "blogs/aliquam"
@@ -110,10 +110,10 @@ disqusShortname = ""
       url = "blogs/magna"
 
     [[params.tiles.showcase]]
-      title = "Blog"
-      subtitle = "Nisl Sed Aliquam"
-      image = "pic04.jpg"
-      url = "blogs/ipsum"
+      title = "About Me"
+      subtitle = "Background, Interests and Experience"
+      image = "tiles/fabian_sinn02.png"
+      url = "blogs/about_me/index.html"
 
     #[[params.tiles.showcase]]
       #title = "Consequat"
@@ -170,24 +170,24 @@ disqusShortname = ""
     # Contact Section
     # You can add multiple emails, phone numbers, or addresses
     # by copying the corresponding map with frontmatter code.
-    [[params.contact.email]]
-    title = "Email"
-    email = "example@domain.com"
+    # [[params.contact.email]]
+    # title = "Email"
+    # email = "example@domain.com"
 
-    [[params.contact.phone]]
-    title = "Phone"
-    phone = "(000) 000-0000 x1234"
+    # [[params.contact.phone]]
+    # title = "Phone"
+    # phone = "(000) 000-0000 x1234"
 
-    [[params.contact.address]]
-    title = "Address"
-    street = "Street"
-    city = "City, ST 00000"
-    country = "Country"
+    # [[params.contact.address]]
+    # title = "Address"
+    # street = "Street"
+    # city = "City, ST 00000"
+    # country = "Country"
 
   # Footer section
   [params.footer]
     enable = true
-    copyright = "Company Name"
+    copyright = "Fabian Sinn"
 
     # Uses font awesome icons
     [[params.footer.social]]
@@ -195,27 +195,27 @@ disqusShortname = ""
       url= "https://www.twitter.com"
       label = "Twitter"
 
-    [[params.footer.social]]
-      icon = "fa-facebook"
-      url= "https://www.facebook.com"
-      label = "Facebook"
+    # [[params.footer.social]]
+    #  icon = "fa-facebook"
+    #  url= "https://www.facebook.com"
+    #  label = "Facebook"
 
-    [[params.footer.social]]
-      icon = "fa-instagram"
-      url= "https://www.instagram.com"
-      label = "Instagram"
+    # [[params.footer.social]]
+    #  icon = "fa-instagram"
+    #  url= "https://www.instagram.com"
+    #  label = "Instagram"
     
     [[params.footer.social]]
       icon = "fa-github"
-      url= "https://www.github.com"
+      url= "https://github.com/fabian-sinn/"
       label = "GitHub"
 
     [[params.footer.social]]
       icon = "fa-linkedin"
-      url= "https://www.linkedin.com"
+      url= "https://www.linkedin.com/in/fabian-sinn/"
       label = "LinkedIn"
 
-    [[params.footer.quicklinks]]
-      text = "Design: "
-      url= "https://www.html5up.net"
-      alt = "HTML5 UP"
+    # [[params.footer.quicklinks]]
+    #  text = "Design: "
+    #  url= "https://www.html5up.net"
+    #  alt = "HTML5 UP"
