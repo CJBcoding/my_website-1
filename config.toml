@@ -107,7 +107,7 @@ disqusShortname = ""
       title = "Data Visualization in R"
       subtitle = "Practical visualization with ggplot"
       image = "tiles/data_vis.jpg"
-      url = "pages/data_visualization"
+      url = "pages/data-visualization-in-r"
 
     [[params.tiles.showcase]]
       title = "AirBnB Beijing"
