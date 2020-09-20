@@ -99,6 +99,9 @@ We will be creating 95% confidence intervals for population parameters. The vari
 <div id="the-process" class="section level2">
 <h2>The process</h2>
 <p><strong>First, we load the dataframe…</strong></p>
+<pre class="r"><code>gss &lt;- read_csv(here::here(&quot;data&quot;, &quot;smallgss2016.csv&quot;), 
+                na = c(&quot;&quot;, &quot;Don&#39;t know&quot;,
+                       &quot;No answer&quot;, &quot;Not applicable&quot;))</code></pre>
 <p><strong>Let’s have a look at the dataframe…</strong></p>
 <pre class="r"><code>glimpse(gss)</code></pre>
 <pre><code>## Rows: 2,867
@@ -632,24 +635,25 @@ ci_twitter &lt;- twitter_bg_proportion %&gt;%
 
 ci_twitter %&gt;%
   kbl(col.names = c(&quot;Bachelor-Master Grad&quot;, &quot;Twitter User&quot;, &quot;Lower CI&quot;, &quot;Expected share&quot;, &quot;Upper CI&quot;)) %&gt;%
-  kable_material(c(&quot;striped&quot;, &quot;hover&quot;)) %&gt;%
-  kable_styling(fixed_thead = T)</code></pre>
-<table class=" lightable-material lightable-striped lightable-hover table" style='font-family: "Source Sans Pro", helvetica, sans-serif; margin-left: auto; margin-right: auto; margin-left: auto; margin-right: auto;'>
+  kable_material_dark() %&gt;%
+  kable_styling(fixed_thead = T, full_width = F, font_size = 14) %&gt;% 
+  row_spec(0, background = &quot;#363640&quot;, color = &quot;white&quot;)</code></pre>
+<table class=" lightable-material-dark table" style='font-family: "Source Sans Pro", helvetica, sans-serif; margin-left: auto; margin-right: auto; font-size: 14px; width: auto !important; margin-left: auto; margin-right: auto;'>
 <thead>
 <tr>
-<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;color: white !important;background-color: #363640 !important;">
 Bachelor-Master Grad
 </th>
-<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;color: white !important;background-color: #363640 !important;">
 Twitter User
 </th>
-<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;color: white !important;background-color: #363640 !important;">
 Lower CI
 </th>
-<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;color: white !important;background-color: #363640 !important;">
 Expected share
 </th>
-<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;color: white !important;background-color: #363640 !important;">
 Upper CI
 </th>
 </tr>
@@ -711,7 +715,7 @@ ggplot(gss_email, aes(email))+
   geom_boxplot() +
   labs(x = &quot;Minutes (per week)&quot;, title = &quot;Clear signs of outliers in the dataset influencing the mean e-mail usage&quot;, subtitle = &quot;Distribution of weekly email usage of Americans&quot;) +
   theme_bw()</code></pre>
-<p><img src="/pages/gss/index_files/figure-html/email_usage-1.png" width="648" style="display: block; margin: auto;" /></p>
+<p><img src="/pages/gss/index_files/figure-html/email_usage-1.png" width="960" style="display: block; margin: auto;" /></p>
 <pre class="r"><code>mean_median_email &lt;- gss_email %&gt;% 
   summarise(mean = mean(email), median = median(email))
 

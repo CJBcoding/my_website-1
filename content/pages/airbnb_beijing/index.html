@@ -1,0 +1,912 @@
+---
+title: "AirBnB Beijing (Part 1)"
+slug: "airbnb_beijing"
+# author: "Fabian Sinn"
+# date: "20/09/2020"
+draft: false
+output: html_document
+---
+
+<script src="/rmarkdown-libs/kePrint/kePrint.js"></script>
+<link href="/rmarkdown-libs/lightable/lightable.css" rel="stylesheet" />
+
+
+<p><img src="beijing.jpg" /></p>
+<div id="introduction-part-1-data-cleaning-eda" class="section level1">
+<h1>Introduction (Part 1: Data cleaning + EDA)</h1>
+<p>The following project focuses on the analysis of an <a href="http://data.insideairbnb.com/china/beijing/beijing/2020-06-19/data/listings.csv.gz">AirBnB dataset</a>. As part of the project I performed <strong>Exploratory Data Analysis (EDA)</strong>, <strong>Data visualization</strong> as well as <strong>Regression Analysis</strong>. The final output is a multivariate regression model that predicts the total cost of two people to stay at an AirBnB property in Beijing for 4 nights. For the purpose of this work display I’ll present a smaller subset of analyses and visualizations that were part of the larger project.</p>
+<blockquote>
+<p>Therefore the focus of this showcase (Part 1) is the structured data cleaning and data exploration process (EDA).</p>
+</blockquote>
+</div>
+<div id="data-cleaning-process" class="section level1">
+<h1>Data cleaning process</h1>
+<p><strong>First, we load the dataframe…</strong></p>
+<pre class="r"><code>beijing_data &lt;- vroom::vroom(&quot;http://data.insideairbnb.com/china/beijing/beijing/2020-06-19/data/listings.csv.gz&quot;)%&gt;% 
+  clean_names()</code></pre>
+<p><strong>Let’s have a look at the dataframe…</strong></p>
+<pre class="r"><code># Skim data set to get initial understanding of dataset like missing values, datatypes etc. 
+# skim(beijing_data)</code></pre>
+<p>Looking at the initial skim of data we observe that there is a large amount of missing entries (i.e. NA values) for certain variables.
+Based on this initial view, we’ll remove variables that:</p>
+<ul>
+<li>Only have one distinct value/ NA or very limited number of entries (e.g. square footage)</li>
+<li>Binary/ Categorical variables that only have one value (e.g. “FALSE” or different Bed Types) for &gt;95% of entries</li>
+<li>Descriptive (Text) strings that could only be processed with NLP (natural language processing) and which would require advanced cleaning/ time effort</li>
+<li>All variable with datatype date (not used for analysis), e.g. last time scraped</li>
+</ul>
+<p><strong>General observations:</strong></p>
+<ul>
+<li>Number of rows/ observations: 36,283</li>
+<li>Number of columns/ variables: 106</li>
+<li>Column type frequency:
+<ul>
+<li>Character: 46</li>
+<li>Date: 15</li>
+<li>Logical: 15</li>
+<li>Numeric: 40</li>
+</ul></li>
+</ul>
+<p>As indicated by the count of data types, we have to further explore the variables and potentially transform them into appropriate types to prepare the dataset for further analysis (esp. character data types). We can observe that there are no factor or categorical variables on this dataset. As we will see, however, there are variables such as property type, host response time and cancellation policy for which most of the responses are represented by a limited set of options. As a first step, we’ll additionally change the datatypes from string to numeric for <em>price</em>, <em>cleaning_fee</em>, <em>security_deposit</em> and <em>extra_people</em>.</p>
+<p><strong>Let’s manipulate the data …</strong></p>
+<pre class="r"><code># Select potentially relevant data columns (variables) to be further analyzed in the next steps
+beijing_selected &lt;- beijing_data %&gt;% 
+  #Select the relevant variables
+  select(id, 
+         host_response_time,
+         host_response_rate,
+         host_acceptance_rate,
+         host_is_superhost,
+         host_listings_count,
+         host_total_listings_count,
+         host_identity_verified,
+         neighbourhood,
+         neighbourhood_cleansed,
+         zipcode,
+         latitude,
+         longitude,
+         is_location_exact,
+         property_type,
+         room_type,
+         accommodates,
+         bathrooms,
+         bedrooms,
+         beds,
+         price,
+         security_deposit,
+         cleaning_fee,
+         guests_included,
+         extra_people,
+         minimum_nights,
+         maximum_nights,
+         number_of_reviews,
+         number_of_reviews_ltm,
+         review_scores_rating,
+         review_scores_checkin,
+         review_scores_cleanliness,
+         review_scores_accuracy,
+         review_scores_communication,
+         review_scores_location,
+         review_scores_value,
+         instant_bookable,
+         cancellation_policy,
+         reviews_per_month) %&gt;%
+  # Perform basic mutate to change data type of numeric variables and parse number 
+  mutate(price = parse_number(price),
+         cleaning_fee = parse_number(cleaning_fee),
+         security_deposit = parse_number(security_deposit),
+         extra_people = parse_number(extra_people),
+         host_response_rate = parse_number(host_response_rate),
+         host_acceptance_rate = parse_number(host_acceptance_rate)
+         )</code></pre>
+<p>Following this initial clean, we create a bar chart showing the % of missing values for further data cleaning.</p>
+<p><strong>Let’s visualize the missing values in the dataset…</strong></p>
+<pre class="r"><code># We plot a bar chart that shows the percentage, thanks to Group 9 for the inspiration  
+
+missing_entries &lt;- beijing_selected %&gt;% 
+  summarise_all(~(sum(is.na(.))/n())*100) %&gt;% 
+  pivot_longer(cols = id:reviews_per_month, names_to = &quot;variable&quot;, values_to = &quot;perc_missing_values&quot;) %&gt;% 
+  group_by(variable)
+
+
+missing_entries %&gt;% 
+           ggplot(aes(x = reorder(variable, perc_missing_values), y = perc_missing_values, show.legend = FALSE)) +
+           geom_bar(stat = &quot;identity&quot;) +
+           coord_flip() +
+           labs(title = &quot;Numerous selected variables in AirBnB dataset have &gt;40% missing values&quot;, subtitle = &quot;Percentage of missing values (NAs) is AirBnB dataset&quot;, y = &quot;Percentage (%)&quot;, x = element_blank()) +
+           theme_bw()</code></pre>
+<p><img src="/pages/airbnb_beijing/index_files/figure-html/Plot_missing_values-1.png" width="960" style="display: block; margin: auto;" /></p>
+<p>Based on the bar plot we identify additional variables that have a high share (%) of NA values. This is especially relevant for the variables <em>cleaning_fee</em> and <em>security_deposit</em>; we infer that, most likely, there is a high percentage of missing values because there are no cleaning/security fees associated with the stay (i.e. cleaning/security fees = 0). Hence, we are going to assume 0 values in case there is an NA entry. We note that <em>review</em> related variables will require further exploration as there is a high percentage (&gt;40%) of missing values. <em>neighbourhood</em> will be disregarded going forward as the dataset also includes a <em>neighbourhood_cleansed</em> variable where missing values were added.</p>
+<p>In order to narrow down the number of different property types (Top 4) and regroup them, we perform a count of listings for the different property types.</p>
+<p><em>Top 4 property types:</em></p>
+<ol style="list-style-type: decimal">
+<li>Apartment: 14,428</li>
+<li>Condominium: 4,761</li>
+<li>House: 4,129</li>
+<li>Loft: 2,960</li>
+<li>Other: 10,005</li>
+</ol>
+<pre class="r"><code> beijing_properties &lt;- beijing_selected %&gt;%
+  #Count the total for the variable property type
+    count(property_type) %&gt;%
+  #Create a new variable to quantify the percentage
+    mutate(percentage = n/sum(n)*100)%&gt;%
+  #Arrange in descending order
+    arrange(desc(n))
+#Choose only the 4 most common properties from the list
+beijing_properties &lt;- slice(beijing_properties, -5:-n())
+
+#Create a new row to specify the total number of the first four variables
+total &lt;- data.frame(&quot;Summary top 4&quot;,26278,72.43)
+#Specify the names corresponding to the variables we have just added
+names(total) &lt;- c(&quot;property_type&quot;,&quot;n&quot;,&quot;percentage&quot;)
+#Append the row to the others. Call the new datafrane beijing_properties.New
+beijing_properties.New &lt;- rbind(beijing_properties,total)
+
+
+beijing_properties.New %&gt;%
+  #Create a table with package kable extra package
+  
+  #col.names just accounts for the names of the variables
+  kbl(col.names = c(&quot;Property type&quot;,&quot;Count&quot;,&quot;Percentage (%)&quot;)) %&gt;%
+  #Customize the table by defining the font
+  kable_material_dark() %&gt;%
+  kable_styling(fixed_thead = T, full_width = F, font_size = 14) %&gt;% 
+  row_spec(0, background = &quot;#363640&quot;, color = &quot;white&quot;)</code></pre>
+<table class=" lightable-material-dark table" style='font-family: "Source Sans Pro", helvetica, sans-serif; margin-left: auto; margin-right: auto; font-size: 14px; width: auto !important; margin-left: auto; margin-right: auto;'>
+<thead>
+<tr>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;color: white !important;background-color: #363640 !important;">
+Property type
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;color: white !important;background-color: #363640 !important;">
+Count
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;color: white !important;background-color: #363640 !important;">
+Percentage (%)
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Apartment
+</td>
+<td style="text-align:right;">
+14428
+</td>
+<td style="text-align:right;">
+39.77
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Condominium
+</td>
+<td style="text-align:right;">
+4761
+</td>
+<td style="text-align:right;">
+13.12
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+House
+</td>
+<td style="text-align:right;">
+4129
+</td>
+<td style="text-align:right;">
+11.38
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Loft
+</td>
+<td style="text-align:right;">
+2960
+</td>
+<td style="text-align:right;">
+8.16
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Summary top 4
+</td>
+<td style="text-align:right;">
+26278
+</td>
+<td style="text-align:right;">
+72.43
+</td>
+</tr>
+</tbody>
+</table>
+<p>As we can observe, the top 4 property types account for 72.43% of the total.
+Given that we will only consider Airbnb for travelling purposes, another variable worth exploring is the number of minimum nights.</p>
+<pre class="r"><code>#Create a variable beijing nights to analyse variable minimum_nights
+beijing_nights &lt;- beijing_selected %&gt;%
+  #Count the number of minimum nights
+  count(minimum_nights)%&gt;%
+  #Create a new variable to calculate the percentage
+   mutate(percentage = n/sum(n)*100)%&gt;%
+  #Arrange in descending order
+arrange(desc(n))
+
+# Choose only the 7 most common properties from the list
+# beijing_nights &lt;- slice(beijing_nights, -7:-n())
+
+head(beijing_nights, 8) %&gt;%
+  #Create a table with package kable extra package
+  #col.names just accounts for the names of the variables
+  kbl(col.names = c(&quot;Minimum nights&quot;,&quot;Count&quot;,&quot;Percentage (%)&quot;)) %&gt;%
+  #Customization
+  kable_material_dark() %&gt;%
+  kable_styling(fixed_thead = T, full_width = F, font_size = 14) %&gt;% 
+  row_spec(0, background = &quot;#363640&quot;, color = &quot;white&quot;)</code></pre>
+<table class=" lightable-material-dark table" style='font-family: "Source Sans Pro", helvetica, sans-serif; margin-left: auto; margin-right: auto; font-size: 14px; width: auto !important; margin-left: auto; margin-right: auto;'>
+<thead>
+<tr>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;color: white !important;background-color: #363640 !important;">
+Minimum nights
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;color: white !important;background-color: #363640 !important;">
+Count
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;color: white !important;background-color: #363640 !important;">
+Percentage (%)
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+30216
+</td>
+<td style="text-align:right;">
+83.279
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+2178
+</td>
+<td style="text-align:right;">
+6.003
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+1024
+</td>
+<td style="text-align:right;">
+2.822
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+30
+</td>
+<td style="text-align:right;">
+819
+</td>
+<td style="text-align:right;">
+2.257
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+7
+</td>
+<td style="text-align:right;">
+369
+</td>
+<td style="text-align:right;">
+1.017
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+368
+</td>
+<td style="text-align:right;">
+1.014
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+15
+</td>
+<td style="text-align:right;">
+316
+</td>
+<td style="text-align:right;">
+0.871
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+90
+</td>
+<td style="text-align:right;">
+175
+</td>
+<td style="text-align:right;">
+0.482
+</td>
+</tr>
+</tbody>
+</table>
+<p>We can see that, undoubtedly, the most common value for the number of nights is 1. It accounts for 83.3% of the total values. Having 1 as a minimum seems to indicate that the main purpose is attracting customers since guests can spend as little or as much time as they need to; there are no restrictions. Additionally, it can be observed that there are some minimum night values that are greater than 2 or much greater than 2. This could be due to the hosts seeking to reduce operational costs; if the number of minimum nights is increased, the property won’t have to be cleaned and prepared for the new guests every day.</p>
+<p>Subsequently, we proceed to clean the data further by simplifying property type and converting it to a categorical value, and we translate Chinese neighbourhood names into latin names.</p>
+<pre class="r"><code>beijing_cleaned &lt;- beijing_selected %&gt;%
+  # Create a new variable prop_type_simplified
+  mutate(prop_type_simplified = case_when(
+    #The property type will be assigned to one of the top four if on the list,
+    #or to Other if it isn&#39;t one of the top four
+    property_type %in% c(&quot;Apartment&quot;,&quot;Condominium&quot;, &quot;House&quot;,&quot;Loft&quot;) ~ property_type, 
+    TRUE ~ &quot;Other&quot;),
+    
+    # Clean names of neighbourhoods ro be represented in latin letters
+    neighbourhood_cleansed = case_when(
+           neighbourhood_cleansed == &quot;东城区&quot; ~ &quot;Dongcheng&quot;,
+           neighbourhood_cleansed == &quot;丰台区 / Fengtai&quot; ~ &quot;Fengtai&quot;,
+           neighbourhood_cleansed == &quot;大兴区 / Daxing&quot; ~ &quot;Daxing&quot;,
+           neighbourhood_cleansed == &quot;密云县 / Miyun&quot; ~ &quot;Miyun&quot;,
+           neighbourhood_cleansed == &quot;平谷区 / Pinggu&quot; ~ &quot;Pinggu&quot;,
+           neighbourhood_cleansed == &quot;延庆县 / Yanqing&quot; ~ &quot;Yanqing&quot;,
+           neighbourhood_cleansed == &quot;怀柔区 / Huairou&quot; ~ &quot;Huairou&quot;,
+           neighbourhood_cleansed == &quot;房山区&quot; ~ &quot;Fangshan&quot;,
+           neighbourhood_cleansed == &quot;昌平区&quot; ~ &quot;Changping&quot;,
+           neighbourhood_cleansed == &quot;朝阳区 / Chaoyang&quot; ~ &quot;Chaoyang&quot;,
+           neighbourhood_cleansed == &quot;海淀区&quot; ~ &quot;Haidian&quot;,
+           neighbourhood_cleansed == &quot;石景山区&quot; ~ &quot;Shijingshan&quot;,
+           neighbourhood_cleansed == &quot;西城区&quot; ~ &quot;Xicheng&quot;,
+           neighbourhood_cleansed == &quot;通州区 / Tongzhou&quot; ~ &quot;Tongzhou&quot;,
+           neighbourhood_cleansed == &quot;门头沟区 / Mentougou&quot; ~ &quot;Mentougou&quot;,
+           neighbourhood_cleansed == &quot;顺义区 / Shunyi&quot; ~ &quot;Shunyi&quot;)
+    ) %&gt;%
+  #In the case we have NAs, give them the name N/A
+  na_if(&quot;N/A&quot;)
+
+#Assign 0s to the NA values for cleaning fee and security deposit cases
+beijing_cleaned$cleaning_fee[is.na(beijing_cleaned$cleaning_fee)] &lt;- 0
+beijing_cleaned$security_deposit[is.na(beijing_cleaned$security_deposit)] &lt;- 0</code></pre>
+<p>A further question that we want to address is: how are AirBnB prices distributed in the different neighbourhoods in Beijing?</p>
+<pre class="r"><code># Create a dataframe that shows the median prices per night by neighbourhood in Beijing
+median_price_dist &lt;- beijing_cleaned %&gt;% 
+  # select relevant variables
+  select(neighbourhood_cleansed, price) %&gt;%
+  # group by neighbourhood
+  group_by(neighbourhood_cleansed) %&gt;% 
+  # calculate median price per night
+  summarize(median = median(price)) %&gt;% 
+  #Arrange in decreasing order
+  arrange(-median)
+
+# Output bar plot to display price/ night by neighbourhood
+ggplot(data = median_price_dist, aes(x = reorder(neighbourhood_cleansed, median), y = median)) +
+  geom_bar(stat=&quot;identity&quot;) +
+  labs(title = &quot;AirBnB prices/ night significantly differ by neighbourhood&quot;, subtitle = &quot;Median price per night in Beijing by district&quot;, x = element_blank(), y = &quot;Median price per night (in Yuan)&quot;) +
+  #Flip the coordinates
+  coord_flip() +
+  #Add the theme
+  theme_bw()</code></pre>
+<p><img src="/pages/airbnb_beijing/index_files/figure-html/median_price_distr-1.png" width="648" style="display: block; margin: auto;" /></p>
+<p>As can be observed in the chart, the median price per night in Beijing for an AirBnB rental differs significantly by neighbourhood.</p>
+<p>We use the gathered insights to inform our decision on which districts to regroup in the next step in order to narrow the number of currently 16 different neighbourhoods in the dataset. Therefore, we’ll not only look at geographical location (e.g. directional or distance from city center), but also take into account whether median prices for the district are comparable.</p>
+<p>In the following we’ll analyse outliers for the variable of interest <em>price</em> in order to ensure the overall quality of further analyses and to build a accurate regression model. Therefore we’ll remove extreme outliers for price, defined as prices above ¥10,000. Reasons for those outliers in the dataset may be fake listings, hosts that increase prices significantly as they don’t want to rent out the apartment at this particular point, or extremely luxurious apartments.</p>
+<pre class="r"><code># refactor variables and filter for relevant AirBnBs
+
+beijing_cleanbase &lt;- beijing_cleaned %&gt;%
+  # We filter the dataset for listings where the minimum stay is lower or equal to 4 nights and where at least two people can be accommodated 
+  filter(minimum_nights &lt;= 4,
+         accommodates &gt;= 2,
+         price != 0) %&gt;% 
+  # We perform multiple mutate operations in order to transform the variables into factor variables and relevel them
+  mutate(host_response_time = fct_relevel(host_response_time,
+                                            &quot;within an hour&quot;, 
+                                            &quot;within a few hours&quot;,
+                                            &quot;within a day&quot;,
+                                            &quot;a few days or more&quot;),
+         cancellation_policy = fct_relevel(cancellation_policy,
+                                           &quot;flexible&quot;,
+                                           &quot;moderate&quot;,
+                                           &quot;strict_14_with_grace_period&quot;),
+         prop_type_simplified = fct_relevel(prop_type_simplified,
+                                          &quot;Apartment&quot;,
+                                          &quot;Condominium&quot;,
+                                          &quot;House&quot;,
+                                          &quot;Loft&quot;,
+                                          &quot;Other&quot;),
+         room_type = fct_relevel(room_type,
+                                 &quot;Shared room&quot;,
+                                 &quot;Private room&quot;,
+                                 &quot;Entire home/apt&quot;),
+         # We regroup the 16 neighbourhoods included in the neighbourhood_cleansed variable based on geographic location in Beijing, factoring in the median price per night for the particular district 
+         neighbourhood_simplified = case_when(
+           # no clear grouping possible for the following neighbourhoods, therefore name stays the same
+           neighbourhood_cleansed == &quot;Shunyi&quot; ~ &quot;Shunyi&quot;,
+           neighbourhood_cleansed == &quot;Chaoyang&quot; ~ &quot;Chaoyang&quot;,
+           neighbourhood_cleansed == &quot;Huairou&quot; ~ &quot;Huairou&quot;,
+           # North east Beijing excl. Huairou due to significantly higher price point (Yanqing, Pinggu, Miyun) 
+           neighbourhood_cleansed == &quot;Yanqing&quot; ~ &quot;Northeast Beijing&quot;,
+           neighbourhood_cleansed == &quot;Pinggu&quot; ~ &quot;Northeast Beijing&quot;,
+           neighbourhood_cleansed == &quot;Miyun&quot; ~ &quot;Northeast Beijing&quot;,
+           # Beijing central (Dongcheng, Xicheng)
+           neighbourhood_cleansed == &quot;Dongcheng&quot; ~ &quot;Central Beijing&quot;,
+           neighbourhood_cleansed == &quot;Xicheng&quot; ~ &quot;Central Beijing&quot;,
+           # Western Beijing (Shijingshan, Haidian, Fengtai) 
+           neighbourhood_cleansed == &quot;Shijingshan&quot; ~ &quot;Western Beijing&quot;,
+           neighbourhood_cleansed == &quot;Haidian&quot; ~ &quot;Western Beijing&quot;,
+           neighbourhood_cleansed == &quot;Fengtai&quot; ~ &quot;Western Beijing&quot;,
+           # Belt of Outskirts (Fangshan, Daxing, Tongzhou, Mentougou, Changping)
+           neighbourhood_cleansed == &quot;Mentougou&quot; ~ &quot;Beijing Outskirts&quot;,
+           neighbourhood_cleansed == &quot;Fangshan&quot; ~ &quot;Beijing Outskirts&quot;,
+           neighbourhood_cleansed == &quot;Changping&quot; ~ &quot;Beijing Outskirts&quot;,
+           neighbourhood_cleansed == &quot;Daxing&quot; ~ &quot;Beijing Outskirts&quot;,
+           neighbourhood_cleansed == &quot;Tongzhou&quot; ~ &quot;Beijing Outskirts&quot;
+           ),
+         # set neighbourhood as factor
+         neighbourhood_simplified = as.factor(neighbourhood_simplified),
+         # Calculate the price for 4 nights for 2 people
+         price_4_nights = case_when(guests_included &gt;= 2 ~ (price*4+cleaning_fee),
+                                    TRUE ~ ((price+extra_people)*4+cleaning_fee)),
+         price_4_nights_log = log(price_4_nights),
+         price_log = (log(price))
+         ) %&gt;%
+  select(-neighbourhood, -property_type) %&gt;% 
+  filter(!is.na(host_is_superhost) | !is.na(host_identity_verified)) %&gt;% 
+  # We add an additional filter to remove all extreme outliers from the price, which we determined by adding 5x the interquartile range to the 3rd quartile
+  filter(price &lt; 10000)
+
+# skim(beijing_cleanbase)</code></pre>
+</div>
+<div id="data-exploration" class="section level1">
+<h1>Data exploration</h1>
+<p>Now that we performed an extensive data cleaning process, I will perform some data visualization, showing the most interesting relationsships apparent in the AirBnB dataset.</p>
+<p><strong>Let’s show the differences in price/ night by neighbourhood…</strong></p>
+<pre class="r"><code># use violin plot to showcase density distribution of price by neighbourhood
+beijing_cleanbase %&gt;%
+  group_by(neighbourhood_simplified) %&gt;%
+  ggplot(aes(x = reorder(factor(neighbourhood_simplified), -price), y = price), colour = neighbourhood_simplified)+
+  geom_violin(aes(fill= neighbourhood_simplified))+
+  # rescale the y-axis to make the violin plot clearer
+  ylim(0,2500)+
+  # combine a box plot with the violin plot to show the shape of the distribution, its central value, and its variability 
+  geom_boxplot(width=0.04, fill = &quot;#FCF9F9&quot;,
+  # remove the outlier of the boxplot
+               outlier.shape = NA)+
+  # add median point on the plot and make it in red
+  stat_summary(fun.y=median, geom=&quot;point&quot;, size=1.9, color=&quot;black&quot;)+ 
+  # add titles and subtitles for the plot as well as rename the axis names.
+  labs(title = &quot;Huairou widest distribution of prices in Beijing&quot;,
+       subtitle = &quot;Density and distribution of prices for each neighbourhood&quot;,
+       x = &quot;Neighbourhood&quot;,
+       y = &quot;Price (in ¥)&quot;)+
+  # reorder the plot to make them in a descending order based on the median price
+  scale_x_discrete(limits = c(&quot;Huairou&quot;, &quot;Northeast Beijing&quot;, &quot;Central Beijing&quot;, 
+                              &quot;Chaoyang&quot;, &quot;Western Beijing&quot;, &quot;Shunyi&quot;, &quot;Beijing Outskirts&quot;))+
+  scale_fill_manual(values=c(&quot;#5E6CC9&quot;,&quot;#2D866B&quot;,&quot;#5BC88A&quot;,&quot;#848A46&quot;,&quot;#6EA938&quot;,&quot;#40A3BF&quot;,&quot;#94D5E2&quot;))+
+  theme_bw()+
+  # remove the legend
+  theme(legend.position = &#39;none&#39;) +
+  coord_flip()</code></pre>
+<p><img src="/pages/airbnb_beijing/index_files/figure-html/violin_plot-1.png" width="960" style="display: block; margin: auto;" /></p>
+<p>Looking at the distribution of prices it is worth noting that Huairou is the neighbourhood with the widest distribution of prices with the highest median prices/ night at ~¥750.
+Given the fact that Huairou is located ~50 km outside of central Beijing, the prices are mainly driven by tourists. With the <em>Great Wall of China</em> running through the district and the popular Hong Luo Temple located in Hong Luo mountain, AirBnBs are generally in high demand.</p>
+<p><strong>Let’s run some correlation analysis…</strong>*</p>
+<p>In order to identify potential variables for the regression model, we’ll 1st run a correlation analysis that will be complemented by a ggpairs plot which combines a density plot, histogram and scatter plot with a correlation analysis. We are going to explore the correlations between relevant variables we deem important to our analysis.</p>
+<pre class="r"><code># Create a dataframe only including the relevant numeric variables for the correlation 
+beijing_corr &lt;- beijing_cleanbase %&gt;% 
+  select(price, 
+         price_4_nights,
+         price_4_nights_log,
+         host_response_rate, 
+         host_acceptance_rate, 
+         host_listings_count, 
+         accommodates, 
+         bedrooms, 
+         beds, 
+         bathrooms, 
+         security_deposit, 
+         cleaning_fee, 
+         guests_included, 
+         extra_people, 
+         number_of_reviews, 
+         number_of_reviews_ltm, 
+         reviews_per_month,
+         review_scores_rating,
+         review_scores_checkin,
+         review_scores_cleanliness,
+         review_scores_accuracy,
+         review_scores_communication,
+         review_scores_location,
+         review_scores_value 
+         )</code></pre>
+<pre class="r"><code>#create a correlation matrix and then pivot it to together (melt)
+cormat &lt;- round(cor(beijing_corr %&gt;% select(-price_4_nights_log), use = &quot;pairwise.complete.obs&quot;),2)
+melted_cormat &lt;- melt(cormat)
+ggplot(data = melted_cormat, aes(x=Var1, y=Var2, fill=value)) + 
+  geom_tile() + 
+  labs(title = &quot;Correlation Heatmap&quot;, x = &quot;&quot;, y = &quot;&quot;, fill = &quot;Corr. Coeff.&quot;) +
+  scale_fill_gradient(low = &quot;white&quot;, high = &quot;green&quot;) +
+  theme(axis.text.x = element_text(angle = 90),
+        axis.text = element_text(size=8)) </code></pre>
+<p><img src="/pages/airbnb_beijing/index_files/figure-html/unnamed-chunk-2-1.png" width="960" style="display: block; margin: auto;" />
+Using this HeatMap we can see 3 highly correlated sets of variables. Those are 1. Ratings metric 2. Reviews/time metrics and 3. Info related to the size of the airBnB. We can see that the ratings metrics (1) have almost no correlation with the price of the unit. From the chart below we can see the correlation facts and determine that review_scores have no correlation with price and will remove them from our consideration. We are going to disregard all columns that have a correlation coeff with price of &lt; |0.05|.
+Below we can see that the correlation between each set of variables is very significant but they are not correlated in any way with price.</p>
+<pre class="r"><code>#Correlation matrix for ratings related columns
+rating_cormat &lt;- beijing_corr %&gt;% 
+  select(price, review_scores_rating:review_scores_value) %&gt;%
+  cor(use = &quot;pairwise.complete.obs&quot;) %&gt;%
+  round(2)
+rating_cormat[upper.tri(rating_cormat)] &lt;- &quot;&quot;
+rating_cormat %&gt;%
+  kbl() %&gt;%
+  kable_material_dark() %&gt;%
+  kable_styling(fixed_thead = T, font_size = 12, full_width = F) %&gt;% 
+  row_spec(0, background = &quot;#363640&quot;, color = &quot;white&quot;)</code></pre>
+<table class=" lightable-material-dark table" style='font-family: "Source Sans Pro", helvetica, sans-serif; margin-left: auto; margin-right: auto; font-size: 12px; width: auto !important; margin-left: auto; margin-right: auto;'>
+<thead>
+<tr>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;color: white !important;background-color: #363640 !important;">
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;color: white !important;background-color: #363640 !important;">
+price
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;color: white !important;background-color: #363640 !important;">
+review_scores_rating
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;color: white !important;background-color: #363640 !important;">
+review_scores_checkin
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;color: white !important;background-color: #363640 !important;">
+review_scores_cleanliness
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;color: white !important;background-color: #363640 !important;">
+review_scores_accuracy
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;color: white !important;background-color: #363640 !important;">
+review_scores_communication
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;color: white !important;background-color: #363640 !important;">
+review_scores_location
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;color: white !important;background-color: #363640 !important;">
+review_scores_value
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+price
+</td>
+<td style="text-align:left;">
+1
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+review_scores_rating
+</td>
+<td style="text-align:left;">
+0.06
+</td>
+<td style="text-align:left;">
+1
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+review_scores_checkin
+</td>
+<td style="text-align:left;">
+0.05
+</td>
+<td style="text-align:left;">
+0.75
+</td>
+<td style="text-align:left;">
+1
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+review_scores_cleanliness
+</td>
+<td style="text-align:left;">
+0.06
+</td>
+<td style="text-align:left;">
+0.79
+</td>
+<td style="text-align:left;">
+0.65
+</td>
+<td style="text-align:left;">
+1
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+review_scores_accuracy
+</td>
+<td style="text-align:left;">
+0.05
+</td>
+<td style="text-align:left;">
+0.82
+</td>
+<td style="text-align:left;">
+0.76
+</td>
+<td style="text-align:left;">
+0.74
+</td>
+<td style="text-align:left;">
+1
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+review_scores_communication
+</td>
+<td style="text-align:left;">
+0.04
+</td>
+<td style="text-align:left;">
+0.73
+</td>
+<td style="text-align:left;">
+0.78
+</td>
+<td style="text-align:left;">
+0.63
+</td>
+<td style="text-align:left;">
+0.73
+</td>
+<td style="text-align:left;">
+1
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+review_scores_location
+</td>
+<td style="text-align:left;">
+0.04
+</td>
+<td style="text-align:left;">
+0.61
+</td>
+<td style="text-align:left;">
+0.63
+</td>
+<td style="text-align:left;">
+0.55
+</td>
+<td style="text-align:left;">
+0.63
+</td>
+<td style="text-align:left;">
+0.61
+</td>
+<td style="text-align:left;">
+1
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+review_scores_value
+</td>
+<td style="text-align:left;">
+0.02
+</td>
+<td style="text-align:left;">
+0.84
+</td>
+<td style="text-align:left;">
+0.71
+</td>
+<td style="text-align:left;">
+0.75
+</td>
+<td style="text-align:left;">
+0.79
+</td>
+<td style="text-align:left;">
+0.7
+</td>
+<td style="text-align:left;">
+0.63
+</td>
+<td style="text-align:left;">
+1
+</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>#Correlation matrix for num reviews related columns
+review_cormat &lt;- beijing_corr %&gt;% 
+  select(price, number_of_reviews:reviews_per_month) %&gt;%
+  cor(use = &quot;pairwise.complete.obs&quot;) %&gt;%
+  round(2)
+review_cormat[upper.tri(review_cormat)] &lt;- &quot;&quot;
+review_cormat %&gt;%
+  kbl() %&gt;%
+  kable_material_dark() %&gt;%
+  kable_styling(fixed_thead = T, font_size = 12, full_width = F) %&gt;% 
+  row_spec(0, background = &quot;#363640&quot;, color = &quot;white&quot;)  </code></pre>
+<table class=" lightable-material-dark table" style='font-family: "Source Sans Pro", helvetica, sans-serif; margin-left: auto; margin-right: auto; font-size: 12px; width: auto !important; margin-left: auto; margin-right: auto;'>
+<thead>
+<tr>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;color: white !important;background-color: #363640 !important;">
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;color: white !important;background-color: #363640 !important;">
+price
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;color: white !important;background-color: #363640 !important;">
+number_of_reviews
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;color: white !important;background-color: #363640 !important;">
+number_of_reviews_ltm
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;color: white !important;background-color: #363640 !important;">
+reviews_per_month
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+price
+</td>
+<td style="text-align:left;">
+1
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+number_of_reviews
+</td>
+<td style="text-align:left;">
+-0.09
+</td>
+<td style="text-align:left;">
+1
+</td>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+number_of_reviews_ltm
+</td>
+<td style="text-align:left;">
+-0.09
+</td>
+<td style="text-align:left;">
+0.73
+</td>
+<td style="text-align:left;">
+1
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+reviews_per_month
+</td>
+<td style="text-align:left;">
+-0.08
+</td>
+<td style="text-align:left;">
+0.81
+</td>
+<td style="text-align:left;">
+0.92
+</td>
+<td style="text-align:left;">
+1
+</td>
+</tr>
+</tbody>
+</table>
+<p>We can see that the set of variables related to number of guests has some correlation with price according to our heatmap so we plot it to gain a better understanding. Additionally we expect that the factor of being a superhost (<em>is_superhost</em>) further positively influences the correlation of those variables with price. Therefore we include it in the following plot to analyze the relationship.</p>
+<pre class="r"><code>beijing_cleanbase %&gt;%
+  select(host_is_superhost, price, bedrooms, beds, accommodates, bathrooms, review_scores_rating) %&gt;% 
+  # Plot the 
+  GGally::ggpairs(aes(color = host_is_superhost, alpha = 0.4)) + 
+    labs(title = &quot;Multiple variables related to apartment size and amenities highly correlated with price&quot;, subtitle = &quot;&quot;)</code></pre>
+<p><img src="/pages/airbnb_beijing/index_files/figure-html/unnamed-chunk-4-1.png" width="960" style="display: block; margin: auto;" /></p>
+<p>By looking at the scatterplots, we can observe that the relationships between the variables are not linear. If we focus on the price plots, for instance, we can see that there is a wide range of prices concentrated at a low number of bathrooms, bedrooms and beds; most of the price points are located where number of beds, bedrooms and bathrooms is less than 10. There isn’t a clear trend for those points; they are scattered over a wide range of values. In the case of accommodates, the values are spread across the two axes (the price range and the number of accommodates range). Again, there isn’t a linear relationship between the variables, which take multiple and widely spread price values.
+In the plots seen above, we tested the impact of host_is_superhost on the correlation. We can observe that the correlations are conditional on the value of this categorical variable, as the correlation numbers are not the same when the host_is_superhost takes different values.</p>
+<div id="credits" class="section level2">
+<h2>Credits</h2>
+<p>This project was conducted as part of the Applied Analytics</p>
+<p><em>Last updated:</em> 20 September, 2020</p>
+</div>
+</div>

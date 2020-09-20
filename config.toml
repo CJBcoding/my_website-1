@@ -113,13 +113,13 @@ disqusShortname = ""
       title = "AirBnB Beijing"
       subtitle = "Data exploration and Regression modeling"
       image = "tiles/beijing.jpg"
-      url = "blogs/magna"
+      url = "pages/airbnb_beijing"
 
-    [[params.tiles.showcase]]
-      title = "London Bikeshare Data"
-      subtitle = "Usage patterns during COVID-19 lockdown"
-      image = "tiles/pic01.jpg"
-      url = "blogs/aliquam"
+    #[[params.tiles.showcase]]
+    #  title = "London Bikeshare Data"
+    #  subtitle = "Usage patterns during COVID-19 lockdown"
+    #  image = "tiles/pic01.jpg"
+    #  url = "blogs/aliquam"
 
     #[[params.tiles.showcase]]
       #title = "Consequat"

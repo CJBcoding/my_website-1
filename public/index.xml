@@ -42,6 +42,15 @@ Being a Business Graduate from the University of Mannheim, I was part of the IBE
     </item>
     
     <item>
+      <title>AirBnB Beijing (Part 1)</title>
+      <link>https://fabiansinn.netlify.app/pages/airbnb_beijing/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiansinn.netlify.app/pages/airbnb_beijing/</guid>
+      <description>Introduction (Part 1: Data cleaning + EDA)The following project focuses on the analysis of an AirBnB dataset. As part of the project I performed Exploratory Data Analysis (EDA), Data visualization as well as Regression Analysis. The final output is a multivariate regression model that predicts the total cost of two people to stay at an AirBnB property in Beijing for 4 nights. For the purpose of this work display I’ll present a smaller subset of analyses and visualizations that were part of the larger project.</description>
+    </item>
+    
+    <item>
       <title>Data visualization in R</title>
       <link>https://fabiansinn.netlify.app/pages/data-visualization-in-r/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>

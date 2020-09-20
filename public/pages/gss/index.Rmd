@@ -65,7 +65,7 @@ In this assignment we analyze data from the **2016 GSS sample data**, using it t
 
 **First, we load the dataframe...**
 
-```{r, read_gss_data, cache=TRUE, echo = FALSE}
+```{r, read_gss_data, cache=TRUE, warning=FALSE, message=FALSE}
 gss <- read_csv(here::here("data", "smallgss2016.csv"), 
                 na = c("", "Don't know",
                        "No answer", "Not applicable"))
@@ -238,8 +238,9 @@ ci_twitter <- twitter_bg_proportion %>%
 
 ci_twitter %>%
   kbl(col.names = c("Bachelor-Master Grad", "Twitter User", "Lower CI", "Expected share", "Upper CI")) %>%
-  kable_material(c("striped", "hover")) %>%
-  kable_styling(fixed_thead = T)
+  kable_material_dark() %>%
+  kable_styling(fixed_thead = T, full_width = F, font_size = 14) %>% 
+  row_spec(0, background = "#363640", color = "white")
 
 ```
 
@@ -251,7 +252,7 @@ In the following we estimate the *population* parameter on time spent on email w
 
 
 **Let's manipulate the data and plot the email usage...**
-```{r email_usage, fig.height=5, fig.widht=10}
+```{r email_usage, fig.height=5, fig.width=10}
 
 #we change the NA strings into actual NA values
 gss_adjusted[gss_adjusted == "NA"] <- NA
