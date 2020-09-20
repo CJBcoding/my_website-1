@@ -1,0 +1,130 @@
+---
+title: "Data visualization in R"
+slug: "Data visualization in R"
+# author: "Fabian Sinn"
+# date: "20/09/2020"
+draft: false
+output: html_document
+---
+
+```{r setup, echo=FALSE}
+knitr::opts_chunk$set(
+  message = FALSE, 
+  warning = FALSE, 
+  tidy=FALSE,     # display code as typed
+  size="small")   # slightly smaller font for code
+options(digits = 3)
+
+# default figure size
+knitr::opts_chunk$set(
+  fig.width=6.75, 
+  fig.height=6.75,
+  fig.align = "center"
+)
+```
+
+
+```{r load-libraries, echo=FALSE}
+library(tidyverse)  # Load ggplot2, dplyr, and all the other tidyverse packages
+library(mosaic)
+library(ggthemes)
+library(GGally)
+library(readxl)
+library(here)
+library(skimr)
+library(janitor)
+library(broom)
+library(tidyquant)
+library(infer)
+library(openintro)
+library(kableExtra)
+```
+
+![](data_vis.jpg)
+
+# Introduction
+
+In our data driven world the visualization of data is an essential skill in order to transport meaningful messages. It allows us to go beyond the mere analysis of data for the sake of analysis. The following collection of visualizations in R using ggplot are a representation of my work at London Business School in the process of enhancing my skills in the field. I will regularly add new visualizations going forward.
+
+> *"The ability to visualize data in a meaningful way keeps us focused on the 'So what?!' of our analysis."* 
+
+# Brexit voting behaviour
+
+In the following section we will visualize the 2016 Brexit vote data in the UK. Specifically, we show how the political addiliation int he 2015 UK general election translated into Brexit voting.    
+
+## The data 
+
+The data comes from [Elliott Morris](https://www.thecrosstab.com/), who cleaned it and made it available through his [DataCamp class on analysing election and polling data in R](https://www.datacamp.com/courses/analyzing-election-and-polling-data-in-r). It provides the voting results to leave the EU for UK [parliament constituencies](https://en.wikipedia.org/wiki/United_Kingdom_Parliament_constituencies).
+
+## The process
+
+**First, we load the dataframe...**
+
+```{r load_brexit_data, warning=FALSE, message=FALSE}
+brexit_results <- read_csv(here::here("data","brexit_results.csv"))
+```
+
+**Let's have a look at the dataframe...**
+
+```{r check_data, warning=FALSE}
+
+# Glipmse the first data rows in order to check data structure
+check_brexit_results <- head(brexit_results)
+
+check_brexit_results %>% 
+  # Use Kable package in order to transofrm into nice table
+  kbl(col.names = c("Seat", "Con_2015", "Lab_2015", "LD_2015", "Ukip_2015", "Leave_share (%)", "Born_in_UK", "Male", "Unemployed", "Degree", "Age_18to24")) %>%
+  kable_material(c("striped", "hover")) %>%
+  kable_styling(fixed_thead = T, full_width = F, font_size = 14)
+```
+
+As we can observe we have data by constituency, as well as the respective **votes (%) by party** and the resulting **leave share (%)**. Additionally, we have data about the **share of UK born (%)** citizens, **unemplyoment (%)**, **share of degree holders (%)** and **share of people aged 18-24**. 
+
+We intend to visualize a scatter plot showing the relationship between **"Party % in the UK 2015 general election"** and the **Leave % in the 2016 Brexit referendum**. In order to do so, we'll need to manipulate, more specifically pivot our data, so that each constituency has one row with the % of votes related to the particular party affiliation.  
+
+**Let's pivot the data ...** 
+```{r bexit_data_pivot, fig.width=10}
+
+brexit_results_adjusted <- brexit_results %>% 
+  # creating an additional column that indicates the percentage of people that didn't vote: will not be used for this particular exercise
+  mutate(no_vote = 100-con_2015-lab_2015-ld_2015-ukip_2015) %>% 
+  # using pivot longer to create a column with the party affiliation as well as the respective percentage of votes
+  pivot_longer(cols = c(con_2015:ukip_2015),
+               names_to = "Party_vote",
+               values_to = "Vote_share") %>% 
+  # renaming the values to be more descriptive
+  mutate(Party_vote = case_when(
+    Party_vote == "con_2015" ~ "Conservative",
+    Party_vote == "lab_2015" ~ "Labour",
+    Party_vote == "ld_2015" ~ "Lib Dems", 
+    Party_vote == "ukip_2015" ~ "UKIP" 
+  )) 
+
+```
+
+**Let's visualize ...**
+```{r brexit_data_visual, fig.width=10}
+
+#brexit_results_adjusted
+ggplot(brexit_results_adjusted,  aes(x = Vote_share, y = leave_share, colour = Party_vote)) +
+  geom_point(alpha=0.35) +
+  scale_y_continuous(limits = c(20,100)) +
+  scale_colour_manual(values = c("#0087dc", "#d50000", "#FDBB30", "#EFE600")) +
+  # using geom_smooth using the linear method we add a linear trend line to the plot 
+  geom_smooth(method = "lm") +
+  labs(title = "How political affiliation translated to Brexit Voting", x = "Party % in the UK 2015 general election", y = "Leave % in the 2016 Brexit referendum") +
+  theme(panel.grid.major = element_line(colour = "#f0f0f0"),
+        panel.background = element_rect(colour = "black", size=0.5, fill = NA),
+        legend.key = element_rect(colour = "transparent", fill = "transparent"),
+        legend.position = "bottom",
+        legend.title = element_blank())
+```
+
+## The interpretation
+
+Looking at visualized data we can see that there seem to be clear differences in party affiliation of constituencies and the resulting voting behaviour regarding Brexit. As can be observed based on the linear trend lines, constituencies with higher share of **Ukip votes** in the 2015 election had, on average, a higher likelihood to vote for Brexit. Likewise, though with a lower observed correlation, can be observed for constituencies with a higher share of **Conservative votes**. On the contrary, constituencies with stronger affiliation with the **Labour party** and **Liberal Democrats** likely voted against Brexit. 
+
+One always has to keep in mind that based on this basic visualization we canot draw definite conclusions regarding the party affiliation and Brexit voting behaviour. While there can be seen clear correlations, further analysis would be required to identify all or at least a high number of varying factors driving Brexit voter behaviour.  
+
+
+*Last updated:* "`r format(Sys.time(), '%d %B, %Y')`"

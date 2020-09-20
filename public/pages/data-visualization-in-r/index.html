@@ -1,0 +1,449 @@
+<!DOCTYPE HTML>
+<html>
+
+    <head>
+	<meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+	<meta name="description" content="I&#39;m a current Masters in Analytics and Management student (MAM 2021) at London Business School. I will use this portfolio website to display my work in the area of analytics and write about topics at the intersection of tech and business.">
+	<meta name="author" content="Fabian Sinn">
+	<meta name="generator" content="Hugo 0.74.3" />
+	<title>Data visualization in R &middot; Portfolio website of Fabian Sinn</title>
+	<!-- Stylesheets -->
+	
+	<link rel="stylesheet" href="https://fabiansinn.netlify.app/css/main.css"/>
+	
+	
+
+	
+
+	<!-- Custom Fonts -->
+	<link href="https://fabiansinn.netlify.app/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+	
+	<link rel="shortcut icon" type="image/x-icon" href="https://fabiansinn.netlify.app/favicon.ico">
+	<link rel="icon" type="image/x-icon" href="https://fabiansinn.netlify.app/favicon.ico">
+	
+
+	<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+	<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+	<!--[if lt IE 9]>
+	<script src="js/ie/html5shiv.js"></script>
+	<script src="js/ie/html5shiv.jsrespond.min.js"></script>
+	<![endif]-->
+</head>
+
+    <body>
+
+    <!-- Wrapper -->
+        <div id="wrapper">
+
+            <!-- Header -->
+    <header id="header" class="alt">
+        <a href="https://fabiansinn.netlify.app/" class="logo"><strong>Fabian Sinn</strong> <span>Portfolio</span></a>
+        <nav>
+            <a href="#menu">Menu</a>
+        </nav>
+    </header>
+
+<!-- Menu -->
+    <nav id="menu">
+        <ul class="links">
+            
+                <li><a href="https://fabiansinn.netlify.app/">Home</a></li>
+            
+                <li><a href="https://fabiansinn.netlify.app/pages/about_me">About me</a></li>
+            
+
+        </ul>
+        <ul class="actions vertical">
+            
+            
+        </ul>
+    </nav>
+
+        <!-- Main -->
+            <div id="main" class="alt">
+
+                
+                    <section id="one">
+                        <div class="inner">
+                            <header class="major">
+                                <h1>Data visualization in R</h1>
+                            </header>
+                            
+                            
+<script src="/rmarkdown-libs/kePrint/kePrint.js"></script>
+<link href="/rmarkdown-libs/lightable/lightable.css" rel="stylesheet" />
+
+
+<p><img src="data_vis.jpg" /></p>
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
+<p>In our data driven world the visualization of data is an essential skill in order to transport meaningful messages. It allows us to go beyond the mere analysis of data for the sake of analysis. The following collection of visualizations in R using ggplot are a representation of my work at London Business School in the process of enhancing my skills in the field. I will regularly add new visualizations going forward.</p>
+<blockquote>
+<p><em>“The ability to visualize data in a meaningful way keeps us focused on the ‘So what?!’ of our analysis.”</em></p>
+</blockquote>
+</div>
+<div id="brexit-voting-behaviour" class="section level1">
+<h1>Brexit voting behaviour</h1>
+<p>In the following section we will visualize the 2016 Brexit vote data in the UK. Specifically, we show how the political addiliation int he 2015 UK general election translated into Brexit voting.</p>
+<div id="the-data" class="section level2">
+<h2>The data</h2>
+<p>The data comes from <a href="https://www.thecrosstab.com/">Elliott Morris</a>, who cleaned it and made it available through his <a href="https://www.datacamp.com/courses/analyzing-election-and-polling-data-in-r">DataCamp class on analysing election and polling data in R</a>. It provides the voting results to leave the EU for UK <a href="https://en.wikipedia.org/wiki/United_Kingdom_Parliament_constituencies">parliament constituencies</a>.</p>
+</div>
+<div id="the-process" class="section level2">
+<h2>The process</h2>
+<p><strong>First, we load the dataframe…</strong></p>
+<pre class="r"><code>brexit_results &lt;- read_csv(here::here(&quot;data&quot;,&quot;brexit_results.csv&quot;))</code></pre>
+<p><strong>Let’s have a look at the dataframe…</strong></p>
+<pre class="r"><code># Glipmse the first data rows in order to check data structure
+check_brexit_results &lt;- head(brexit_results)
+
+check_brexit_results %&gt;% 
+  # Use Kable package in order to transofrm into nice table
+  kbl(col.names = c(&quot;Seat&quot;, &quot;Con_2015&quot;, &quot;Lab_2015&quot;, &quot;LD_2015&quot;, &quot;Ukip_2015&quot;, &quot;Leave_share (%)&quot;, &quot;Born_in_UK&quot;, &quot;Male&quot;, &quot;Unemployed&quot;, &quot;Degree&quot;, &quot;Age_18to24&quot;)) %&gt;%
+  kable_material(c(&quot;striped&quot;, &quot;hover&quot;)) %&gt;%
+  kable_styling(fixed_thead = T, full_width = F, font_size = 14)</code></pre>
+<table class=" lightable-material lightable-striped lightable-hover table" style='font-family: "Source Sans Pro", helvetica, sans-serif; margin-left: auto; margin-right: auto; font-size: 14px; width: auto !important; margin-left: auto; margin-right: auto;'>
+<thead>
+<tr>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+Seat
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+Con_2015
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+Lab_2015
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+LD_2015
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+Ukip_2015
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+Leave_share (%)
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+Born_in_UK
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+Male
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+Unemployed
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+Degree
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+Age_18to24
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Aldershot
+</td>
+<td style="text-align:right;">
+50.6
+</td>
+<td style="text-align:right;">
+18.3
+</td>
+<td style="text-align:right;">
+8.82
+</td>
+<td style="text-align:right;">
+17.87
+</td>
+<td style="text-align:right;">
+57.9
+</td>
+<td style="text-align:right;">
+83.1
+</td>
+<td style="text-align:right;">
+49.9
+</td>
+<td style="text-align:right;">
+3.64
+</td>
+<td style="text-align:right;">
+13.87
+</td>
+<td style="text-align:right;">
+9.41
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Aldridge-Brownhills
+</td>
+<td style="text-align:right;">
+52.0
+</td>
+<td style="text-align:right;">
+22.4
+</td>
+<td style="text-align:right;">
+3.37
+</td>
+<td style="text-align:right;">
+19.62
+</td>
+<td style="text-align:right;">
+67.8
+</td>
+<td style="text-align:right;">
+96.1
+</td>
+<td style="text-align:right;">
+48.9
+</td>
+<td style="text-align:right;">
+4.55
+</td>
+<td style="text-align:right;">
+9.97
+</td>
+<td style="text-align:right;">
+7.33
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Altrincham and Sale West
+</td>
+<td style="text-align:right;">
+53.0
+</td>
+<td style="text-align:right;">
+26.7
+</td>
+<td style="text-align:right;">
+8.38
+</td>
+<td style="text-align:right;">
+8.01
+</td>
+<td style="text-align:right;">
+38.6
+</td>
+<td style="text-align:right;">
+90.5
+</td>
+<td style="text-align:right;">
+48.9
+</td>
+<td style="text-align:right;">
+3.04
+</td>
+<td style="text-align:right;">
+28.60
+</td>
+<td style="text-align:right;">
+6.44
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Amber Valley
+</td>
+<td style="text-align:right;">
+44.0
+</td>
+<td style="text-align:right;">
+34.8
+</td>
+<td style="text-align:right;">
+2.98
+</td>
+<td style="text-align:right;">
+15.89
+</td>
+<td style="text-align:right;">
+65.3
+</td>
+<td style="text-align:right;">
+97.3
+</td>
+<td style="text-align:right;">
+49.2
+</td>
+<td style="text-align:right;">
+4.26
+</td>
+<td style="text-align:right;">
+9.34
+</td>
+<td style="text-align:right;">
+7.75
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Arundel and South Downs
+</td>
+<td style="text-align:right;">
+60.8
+</td>
+<td style="text-align:right;">
+11.2
+</td>
+<td style="text-align:right;">
+7.19
+</td>
+<td style="text-align:right;">
+14.44
+</td>
+<td style="text-align:right;">
+49.7
+</td>
+<td style="text-align:right;">
+93.3
+</td>
+<td style="text-align:right;">
+48.0
+</td>
+<td style="text-align:right;">
+2.47
+</td>
+<td style="text-align:right;">
+18.78
+</td>
+<td style="text-align:right;">
+5.74
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Ashfield
+</td>
+<td style="text-align:right;">
+22.4
+</td>
+<td style="text-align:right;">
+41.0
+</td>
+<td style="text-align:right;">
+14.83
+</td>
+<td style="text-align:right;">
+21.41
+</td>
+<td style="text-align:right;">
+70.5
+</td>
+<td style="text-align:right;">
+97.0
+</td>
+<td style="text-align:right;">
+49.2
+</td>
+<td style="text-align:right;">
+4.74
+</td>
+<td style="text-align:right;">
+6.08
+</td>
+<td style="text-align:right;">
+8.21
+</td>
+</tr>
+</tbody>
+</table>
+<p>As we can observe we have data by constituency, as well as the respective <strong>votes (%) by party</strong> and the resulting <strong>leave share (%)</strong>. Additionally, we have data about the <strong>share of UK born (%)</strong> citizens, <strong>unemplyoment (%)</strong>, <strong>share of degree holders (%)</strong> and <strong>share of people aged 18-24</strong>.</p>
+<p>We intend to visualize a scatter plot showing the relationship between <strong>“Party % in the UK 2015 general election”</strong> and the <strong>Leave % in the 2016 Brexit referendum</strong>. In order to do so, we’ll need to manipulate, more specifically pivot our data, so that each constituency has one row with the % of votes related to the particular party affiliation.</p>
+<p><strong>Let’s pivot the data …</strong></p>
+<pre class="r"><code>brexit_results_adjusted &lt;- brexit_results %&gt;% 
+  # creating an additional column that indicates the percentage of people that didn&#39;t vote: will not be used for this particular exercise
+  mutate(no_vote = 100-con_2015-lab_2015-ld_2015-ukip_2015) %&gt;% 
+  # using pivot longer to create a column with the party affiliation as well as the respective percentage of votes
+  pivot_longer(cols = c(con_2015:ukip_2015),
+               names_to = &quot;Party_vote&quot;,
+               values_to = &quot;Vote_share&quot;) %&gt;% 
+  # renaming the values to be more descriptive
+  mutate(Party_vote = case_when(
+    Party_vote == &quot;con_2015&quot; ~ &quot;Conservative&quot;,
+    Party_vote == &quot;lab_2015&quot; ~ &quot;Labour&quot;,
+    Party_vote == &quot;ld_2015&quot; ~ &quot;Lib Dems&quot;, 
+    Party_vote == &quot;ukip_2015&quot; ~ &quot;UKIP&quot; 
+  )) </code></pre>
+<p><strong>Let’s visualize …</strong></p>
+<pre class="r"><code>#brexit_results_adjusted
+ggplot(brexit_results_adjusted,  aes(x = Vote_share, y = leave_share, colour = Party_vote)) +
+  geom_point(alpha=0.35) +
+  scale_y_continuous(limits = c(20,100)) +
+  scale_colour_manual(values = c(&quot;#0087dc&quot;, &quot;#d50000&quot;, &quot;#FDBB30&quot;, &quot;#EFE600&quot;)) +
+  # using geom_smooth using the linear method we add a linear trend line to the plot 
+  geom_smooth(method = &quot;lm&quot;) +
+  labs(title = &quot;How political affiliation translated to Brexit Voting&quot;, x = &quot;Party % in the UK 2015 general election&quot;, y = &quot;Leave % in the 2016 Brexit referendum&quot;) +
+  theme(panel.grid.major = element_line(colour = &quot;#f0f0f0&quot;),
+        panel.background = element_rect(colour = &quot;black&quot;, size=0.5, fill = NA),
+        legend.key = element_rect(colour = &quot;transparent&quot;, fill = &quot;transparent&quot;),
+        legend.position = &quot;bottom&quot;,
+        legend.title = element_blank())</code></pre>
+<p><img src="/pages/data_visualization/index_files/figure-html/brexit_data_visual-1.png" width="960" style="display: block; margin: auto;" /></p>
+</div>
+<div id="the-interpretation" class="section level2">
+<h2>The interpretation</h2>
+<p>Looking at visualized data we can see that there seem to be clear differences in party affiliation of constituencies and the resulting voting behaviour regarding Brexit. As can be observed based on the linear trend lines, constituencies with higher share of <strong>Ukip votes</strong> in the 2015 election had, on average, a higher likelihood to vote for Brexit. Likewise, though with a lower observed correlation, can be observed for constituencies with a higher share of <strong>Conservative votes</strong>. On the contrary, constituencies with stronger affiliation with the <strong>Labour party</strong> and <strong>Liberal Democrats</strong> likely voted against Brexit.</p>
+<p>One always has to keep in mind that based on this basic visualization we canot draw definite conclusions regarding the party affiliation and Brexit voting behaviour. While there can be seen clear correlations, further analysis would be required to identify all or at least a high number of varying factors driving Brexit voter behaviour.</p>
+<p><em>Last updated:</em> “20 September, 2020”</p>
+</div>
+</div>
+
+                        </div>
+                    </section>
+            <!-- Disqus Inject -->
+                
+            </div>
+            
+        <!-- Footer -->
+            
+                <!-- Footer -->
+    <footer id="footer">
+        <div class="inner">
+            <ul class="icons">
+                
+                    <li><a href="https://twitter.com/detweetfabian/" class="icon alt fa-twitter" target="_blank"><span class="label">Twitter</span></a></li>
+                
+                    <li><a href="https://github.com/fabian-sinn/" class="icon alt fa-github" target="_blank"><span class="label">GitHub</span></a></li>
+                
+                    <li><a href="https://www.linkedin.com/in/fabian-sinn/" class="icon alt fa-linkedin" target="_blank"><span class="label">LinkedIn</span></a></li>
+                
+            </ul>
+            <ul class="copyright">
+                <li>&copy; Fabian Sinn</li>
+                
+            </ul>
+        </div>
+    </footer>
+
+            
+        </div>
+
+    <!-- Scripts -->
+        <!-- Scripts -->
+    <!-- jQuery -->
+    <script src="https://fabiansinn.netlify.app/js/jquery.min.js"></script>
+    <script src="https://fabiansinn.netlify.app/js/jquery.scrolly.min.js"></script>
+    <script src="https://fabiansinn.netlify.app/js/jquery.scrollex.min.js"></script>
+    <script src="https://fabiansinn.netlify.app/js/skel.min.js"></script>
+    <script src="https://fabiansinn.netlify.app/js/util.js"></script>
+
+    
+
+    <!-- Main JS -->
+    <script src="https://fabiansinn.netlify.app/js/main.js"></script>
+
+    
+
+    
+
+    </body>
+</html>
