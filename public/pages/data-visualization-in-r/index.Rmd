@@ -69,13 +69,14 @@ brexit_results <- read_csv(here::here("data","brexit_results.csv"))
 ```{r check_data, warning=FALSE}
 
 # Glipmse the first data rows in order to check data structure
-check_brexit_results <- head(brexit_results)
+check_brexit_results <- head(brexit_results, 10)
 
 check_brexit_results %>% 
   # Use Kable package in order to transofrm into nice table
   kbl(col.names = c("Seat", "Con_2015", "Lab_2015", "LD_2015", "Ukip_2015", "Leave_share (%)", "Born_in_UK", "Male", "Unemployed", "Degree", "Age_18to24")) %>%
   kable_material_dark() %>%
-  kable_styling(fixed_thead = T, full_width = F, font_size = 14)
+  kable_styling(fixed_thead = T, full_width = F, font_size = 14) %>% 
+  row_spec(0, background = "#363640", color = "white")
 ```
 
 As we can observe we have data by constituency, as well as the respective **votes (%) by party** and the resulting **leave share (%)**. Additionally, we have data about the **share of UK born (%)** citizens, **unemplyoment (%)**, **share of degree holders (%)** and **share of people aged 18-24**. 

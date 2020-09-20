@@ -29,5 +29,29 @@ Being a Business Graduate from the University of Mannheim, I was part of the IBE
       <description>IntroductionIn our data driven world the visualization of data is an essential skill in order to transport meaningful messages. It allows us to go beyond the mere analysis of data for the sake of analysis. The following collection of visualizations in R using ggplot are a representation of my work at London Business School in the process of enhancing my skills in the field. I will regularly add new visualizations going forward.</description>
     </item>
     
+    <item>
+      <title>General Social Survey</title>
+      <link>https://fabiansinn.netlify.app/pages/gss/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiansinn.netlify.app/pages/gss/</guid>
+      <description>IntroductionThe General Social Survey (GSS) gathers data on American society in order to monitor and explain trends in attitudes, behaviours, and attributes. Many trends have been tracked for decades, so one can see the evolution of attitudes, etc in American Society.
+The General Social SurveyIn the following section we will use the GSS survey data sample to predict population parameters for people’s social media usage.We will be creating 95% confidence intervals for population parameters.</description>
+    </item>
+    
+    <item>
+      <title>London Bikeshare Data</title>
+      <link>https://fabiansinn.netlify.app/pages/bikeshare/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://fabiansinn.netlify.app/pages/bikeshare/</guid>
+      <description>Introduction[…]
+“The ability to visualize data in a meaningful way keeps us focused on the ‘So what?!’ of our analysis.”
+[…]In the following section we will visualize the 2016 Brexit vote data in the UK. Specifically, we show how the political addiliation int he 2015 UK general election translated into Brexit voting.
+The data[…]
+The processFirst, we load the dataframe…
+#brexit_results &amp;lt;- read_csv(here::here(&amp;quot;data&amp;quot;,&amp;quot;XXX&amp;quot;))Let’s have a look at the dataframe…</description>
+    </item>
+    
   </channel>
 </rss>

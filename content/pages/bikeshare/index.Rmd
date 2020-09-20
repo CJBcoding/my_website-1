@@ -1,0 +1,95 @@
+---
+title: "London Bikeshare Data"
+slug: "bikeshare"
+# author: "Fabian Sinn"
+# date: "20/09/2020"
+draft: false
+output: html_document
+---
+
+```{r setup, echo=FALSE}
+knitr::opts_chunk$set(
+  message = FALSE, 
+  warning = FALSE, 
+  tidy=FALSE,     # display code as typed
+  size="small")   # slightly smaller font for code
+options(digits = 3)
+
+# default figure size
+knitr::opts_chunk$set(
+  fig.width=6.75, 
+  fig.height=6.75,
+  fig.align = "center"
+)
+```
+
+
+```{r load-libraries, echo=FALSE}
+library(tidyverse)  # Load ggplot2, dplyr, and all the other tidyverse packages
+library(mosaic)
+library(ggthemes)
+library(GGally)
+library(readxl)
+library(here)
+library(skimr)
+library(janitor)
+library(broom)
+library(tidyquant)
+library(infer)
+library(openintro)
+library(kableExtra)
+```
+
+![](data_vis.jpg)
+
+# Introduction
+
+[...]
+
+> *"The ability to visualize data in a meaningful way keeps us focused on the 'So what?!' of our analysis."* 
+
+# [...]
+
+In the following section we will visualize the 2016 Brexit vote data in the UK. Specifically, we show how the political addiliation int he 2015 UK general election translated into Brexit voting.    
+
+## The data 
+
+[...]
+
+
+## The process
+
+**First, we load the dataframe...**
+
+```{r load_data, warning=FALSE, message=FALSE}
+#brexit_results <- read_csv(here::here("data","XXX"))
+```
+
+**Let's have a look at the dataframe...**
+
+```{r check_data, warning=FALSE}
+
+
+```
+
+[...]
+
+**Let's manipulate the data ...** 
+
+```{r}
+
+```
+
+[...]
+
+**Let's visualize ...**
+```{r fig.width=10}
+
+
+```
+
+## The interpretation
+
+[...]
+
+*Last updated:* `r format(Sys.time(), '%d %B, %Y')`

@@ -96,13 +96,13 @@ disqusShortname = ""
       subtitle = "Background, Interests and Experience"
       image = "tiles/fabian_sinn02.png"
       url = "pages/about_me"
-      
+    
     [[params.tiles.showcase]]
-      title = "London Bikeshare Data"
-      subtitle = "Usage patterns during COVID-19 lockdown"
-      image = "tiles/pic01.jpg"
-      url = "blogs/aliquam"
-
+      title = "General Social Survey (GSS)"
+      subtitle = "Social media usage patterns"
+      image = "tiles/social_media.jpg"
+      url = "pages/gss"
+    
     [[params.tiles.showcase]]
       title = "Data Visualization in R"
       subtitle = "Practical visualization with ggplot"
@@ -115,11 +115,17 @@ disqusShortname = ""
       image = "tiles/beijing.jpg"
       url = "blogs/magna"
 
+    [[params.tiles.showcase]]
+      title = "London Bikeshare Data"
+      subtitle = "Usage patterns during COVID-19 lockdown"
+      image = "tiles/pic01.jpg"
+      url = "blogs/aliquam"
+
     #[[params.tiles.showcase]]
       #title = "Consequat"
       #subtitle = "Ipsum Dolor Sit Amet"
       #image = "pic05.jpg"
-      #url = "blogs/ipsum"
+      #url = "blogs/ipsum"git 
 
     #[[params.tiles.showcase]]
       #title = "Etiam"

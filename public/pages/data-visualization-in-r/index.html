@@ -98,47 +98,48 @@
 <pre class="r"><code>brexit_results &lt;- read_csv(here::here(&quot;data&quot;,&quot;brexit_results.csv&quot;))</code></pre>
 <p><strong>Let’s have a look at the dataframe…</strong></p>
 <pre class="r"><code># Glipmse the first data rows in order to check data structure
-check_brexit_results &lt;- head(brexit_results)
+check_brexit_results &lt;- head(brexit_results, 10)
 
 check_brexit_results %&gt;% 
   # Use Kable package in order to transofrm into nice table
   kbl(col.names = c(&quot;Seat&quot;, &quot;Con_2015&quot;, &quot;Lab_2015&quot;, &quot;LD_2015&quot;, &quot;Ukip_2015&quot;, &quot;Leave_share (%)&quot;, &quot;Born_in_UK&quot;, &quot;Male&quot;, &quot;Unemployed&quot;, &quot;Degree&quot;, &quot;Age_18to24&quot;)) %&gt;%
   kable_material_dark() %&gt;%
-  kable_styling(fixed_thead = T, full_width = F, font_size = 14)</code></pre>
+  kable_styling(fixed_thead = T, full_width = F, font_size = 14) %&gt;% 
+  row_spec(0, background = &quot;#363640&quot;, color = &quot;white&quot;)</code></pre>
 <table class=" lightable-material-dark table" style='font-family: "Source Sans Pro", helvetica, sans-serif; margin-left: auto; margin-right: auto; font-size: 14px; width: auto !important; margin-left: auto; margin-right: auto;'>
 <thead>
 <tr>
-<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;color: white !important;background-color: #363640 !important;">
 Seat
 </th>
-<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;color: white !important;background-color: #363640 !important;">
 Con_2015
 </th>
-<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;color: white !important;background-color: #363640 !important;">
 Lab_2015
 </th>
-<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;color: white !important;background-color: #363640 !important;">
 LD_2015
 </th>
-<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;color: white !important;background-color: #363640 !important;">
 Ukip_2015
 </th>
-<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;color: white !important;background-color: #363640 !important;">
 Leave_share (%)
 </th>
-<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;color: white !important;background-color: #363640 !important;">
 Born_in_UK
 </th>
-<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;color: white !important;background-color: #363640 !important;">
 Male
 </th>
-<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;color: white !important;background-color: #363640 !important;">
 Unemployed
 </th>
-<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;color: white !important;background-color: #363640 !important;">
 Degree
 </th>
-<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;color: white !important;background-color: #363640 !important;">
 Age_18to24
 </th>
 </tr>
@@ -352,6 +353,146 @@ Ashfield
 </td>
 <td style="text-align:right;">
 8.21
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Ashford
+</td>
+<td style="text-align:right;">
+52.5
+</td>
+<td style="text-align:right;">
+18.4
+</td>
+<td style="text-align:right;">
+5.98
+</td>
+<td style="text-align:right;">
+18.82
+</td>
+<td style="text-align:right;">
+59.9
+</td>
+<td style="text-align:right;">
+90.5
+</td>
+<td style="text-align:right;">
+48.5
+</td>
+<td style="text-align:right;">
+3.69
+</td>
+<td style="text-align:right;">
+13.12
+</td>
+<td style="text-align:right;">
+7.82
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Ashton-under-Lyne
+</td>
+<td style="text-align:right;">
+22.1
+</td>
+<td style="text-align:right;">
+49.8
+</td>
+<td style="text-align:right;">
+2.42
+</td>
+<td style="text-align:right;">
+21.76
+</td>
+<td style="text-align:right;">
+61.8
+</td>
+<td style="text-align:right;">
+90.7
+</td>
+<td style="text-align:right;">
+49.2
+</td>
+<td style="text-align:right;">
+5.11
+</td>
+<td style="text-align:right;">
+7.90
+</td>
+<td style="text-align:right;">
+8.94
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Aylesbury
+</td>
+<td style="text-align:right;">
+50.7
+</td>
+<td style="text-align:right;">
+15.1
+</td>
+<td style="text-align:right;">
+10.62
+</td>
+<td style="text-align:right;">
+19.71
+</td>
+<td style="text-align:right;">
+51.8
+</td>
+<td style="text-align:right;">
+87.0
+</td>
+<td style="text-align:right;">
+49.5
+</td>
+<td style="text-align:right;">
+3.39
+</td>
+<td style="text-align:right;">
+17.80
+</td>
+<td style="text-align:right;">
+7.56
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Banbury
+</td>
+<td style="text-align:right;">
+53.0
+</td>
+<td style="text-align:right;">
+21.3
+</td>
+<td style="text-align:right;">
+5.93
+</td>
+<td style="text-align:right;">
+13.88
+</td>
+<td style="text-align:right;">
+50.3
+</td>
+<td style="text-align:right;">
+88.8
+</td>
+<td style="text-align:right;">
+49.5
+</td>
+<td style="text-align:right;">
+2.93
+</td>
+<td style="text-align:right;">
+16.70
+</td>
+<td style="text-align:right;">
+7.61
 </td>
 </tr>
 </tbody>

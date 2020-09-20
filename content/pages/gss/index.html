@@ -1,0 +1,738 @@
+---
+title: "General Social Survey"
+slug: "gss"
+# author: "Fabian Sinn"
+# date: "20/09/2020"
+draft: false
+output: html_document
+---
+
+<script src="/rmarkdown-libs/kePrint/kePrint.js"></script>
+<link href="/rmarkdown-libs/lightable/lightable.css" rel="stylesheet" />
+
+
+<p><img src="social_media.jpg" /></p>
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
+<p>The <a href="http://www.gss.norc.org/">General Social Survey (GSS)</a> gathers data on American society in order to monitor and explain trends in attitudes, behaviours, and attributes. Many trends have been tracked for decades, so one can see the evolution of attitudes, etc in American Society.</p>
+</div>
+<div id="the-general-social-survey" class="section level1">
+<h1>The General Social Survey</h1>
+<p>In the following section we will use the GSS survey data sample to predict population parameters for people’s social media usage.
+We will be creating 95% confidence intervals for population parameters. The variables we have are the following:</p>
+<ul>
+<li><code>emailhr</code> and <code>emailmin</code>: hours and minutes spent on email weekly. For example, if the response is 2.50 hours, this would be recorded as emailhr = 2 and emailmin = 30</li>
+<li><code>snapchat</code>, <code>instagrm</code>, <code>twitter</code>: whether respondents used these social media in 2016</li>
+<li><code>sex</code>: Female - Male</li>
+<li><code>degree</code>: highest education level attained</li>
+</ul>
+<div id="the-data" class="section level2">
+<h2>The data</h2>
+<p>In this assignment we analyze data from the <strong>2016 GSS sample data</strong>, using it to estimate values of <em>population parameters</em> of interest about US adults. The GSS sample data file has 2867 observations of 935 variables, but we are only interested in very few of these variables and therefore use a smaller file.</p>
+</div>
+<div id="the-process" class="section level2">
+<h2>The process</h2>
+<p><strong>First, we load the dataframe…</strong></p>
+<p><strong>Let’s have a look at the dataframe…</strong></p>
+<pre class="r"><code>glimpse(gss)</code></pre>
+<pre><code>## Rows: 2,867
+## Columns: 7
+## $ emailmin &lt;chr&gt; &quot;0&quot;, &quot;30&quot;, &quot;NA&quot;, &quot;10&quot;, &quot;NA&quot;, &quot;0&quot;, &quot;0&quot;, &quot;NA&quot;, &quot;0&quot;, &quot;NA&quot;, &quot;0...
+## $ emailhr  &lt;chr&gt; &quot;12&quot;, &quot;0&quot;, &quot;NA&quot;, &quot;0&quot;, &quot;NA&quot;, &quot;2&quot;, &quot;40&quot;, &quot;NA&quot;, &quot;0&quot;, &quot;NA&quot;, &quot;2...
+## $ snapchat &lt;chr&gt; &quot;NA&quot;, &quot;No&quot;, &quot;No&quot;, &quot;NA&quot;, &quot;Yes&quot;, &quot;No&quot;, &quot;NA&quot;, &quot;Yes&quot;, &quot;NA&quot;, &quot;N...
+## $ instagrm &lt;chr&gt; &quot;NA&quot;, &quot;No&quot;, &quot;No&quot;, &quot;NA&quot;, &quot;Yes&quot;, &quot;Yes&quot;, &quot;NA&quot;, &quot;Yes&quot;, &quot;NA&quot;, &quot;...
+## $ twitter  &lt;chr&gt; &quot;NA&quot;, &quot;No&quot;, &quot;No&quot;, &quot;NA&quot;, &quot;No&quot;, &quot;No&quot;, &quot;NA&quot;, &quot;No&quot;, &quot;NA&quot;, &quot;No&quot;...
+## $ sex      &lt;chr&gt; &quot;Male&quot;, &quot;Male&quot;, &quot;Male&quot;, &quot;Female&quot;, &quot;Female&quot;, &quot;Female&quot;, &quot;Mal...
+## $ degree   &lt;chr&gt; &quot;Bachelor&quot;, &quot;High school&quot;, &quot;Bachelor&quot;, &quot;High school&quot;, &quot;Gra...</code></pre>
+<pre class="r"><code># Glipmse the first data rows in order to check data structure
+check_gss &lt;- head(gss, 10)
+
+check_gss %&gt;% 
+  # Use Kable package in order to transofrm into nice table
+  kbl(col.names = c(&quot;E-Mail (min)&quot;, &quot;E-Mail (hr)&quot;, &quot;Snapchat&quot;, &quot;Instagram&quot;, &quot;Twitter&quot;, &quot;Sex&quot;, &quot;Degree&quot;)) %&gt;%
+  kable_material_dark() %&gt;%
+  kable_styling(fixed_thead = T, full_width = F, font_size = 14) %&gt;% 
+  row_spec(0, background = &quot;#363640&quot;, color = &quot;white&quot;)</code></pre>
+<table class=" lightable-material-dark table" style='font-family: "Source Sans Pro", helvetica, sans-serif; margin-left: auto; margin-right: auto; font-size: 14px; width: auto !important; margin-left: auto; margin-right: auto;'>
+<thead>
+<tr>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;color: white !important;background-color: #363640 !important;">
+E-Mail (min)
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;color: white !important;background-color: #363640 !important;">
+E-Mail (hr)
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;color: white !important;background-color: #363640 !important;">
+Snapchat
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;color: white !important;background-color: #363640 !important;">
+Instagram
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;color: white !important;background-color: #363640 !important;">
+Twitter
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;color: white !important;background-color: #363640 !important;">
+Sex
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;color: white !important;background-color: #363640 !important;">
+Degree
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+12
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+Male
+</td>
+<td style="text-align:left;">
+Bachelor
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+30
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+No
+</td>
+<td style="text-align:left;">
+No
+</td>
+<td style="text-align:left;">
+No
+</td>
+<td style="text-align:left;">
+Male
+</td>
+<td style="text-align:left;">
+High school
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+No
+</td>
+<td style="text-align:left;">
+No
+</td>
+<td style="text-align:left;">
+No
+</td>
+<td style="text-align:left;">
+Male
+</td>
+<td style="text-align:left;">
+Bachelor
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+10
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+Female
+</td>
+<td style="text-align:left;">
+High school
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+Yes
+</td>
+<td style="text-align:left;">
+Yes
+</td>
+<td style="text-align:left;">
+No
+</td>
+<td style="text-align:left;">
+Female
+</td>
+<td style="text-align:left;">
+Graduate
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+2
+</td>
+<td style="text-align:left;">
+No
+</td>
+<td style="text-align:left;">
+Yes
+</td>
+<td style="text-align:left;">
+No
+</td>
+<td style="text-align:left;">
+Female
+</td>
+<td style="text-align:left;">
+Junior college
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+40
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+Male
+</td>
+<td style="text-align:left;">
+High school
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+Yes
+</td>
+<td style="text-align:left;">
+Yes
+</td>
+<td style="text-align:left;">
+No
+</td>
+<td style="text-align:left;">
+Female
+</td>
+<td style="text-align:left;">
+High school
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+Male
+</td>
+<td style="text-align:left;">
+High school
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+No
+</td>
+<td style="text-align:left;">
+No
+</td>
+<td style="text-align:left;">
+No
+</td>
+<td style="text-align:left;">
+Male
+</td>
+<td style="text-align:left;">
+Junior college
+</td>
+</tr>
+</tbody>
+</table>
+<p>As we can observe we have data of survey respondent’s social media and email usage per week as well as basic information about the gender and educational degree. As we want intend to estimate the <strong>population proportion</strong> of Snapchat and Instagram users in 2016, we need to create a new variable (<strong>snapchat_insta</strong>) that indicates if the person is either a Snapchat or Instagram user (or both).</p>
+</div>
+<div id="estimate-population-proportion-of-instagram-and-snapchat-by-sex" class="section level2">
+<h2>Estimate population proportion of Instagram and Snapchat by sex</h2>
+<p><strong>Let’s manipulate the data …</strong></p>
+<pre class="r"><code>gss_adjusted &lt;- gss %&gt;% 
+  mutate(
+    # we create a new variable snap_insta that is &quot;Yes&quot; if the respondent reported using snapchat or instagram
+    snap_insta = case_when(
+    instagrm == &quot;Yes&quot; | snapchat == &quot;Yes&quot; ~ &quot;Yes&quot;,
+    instagrm == &quot;No&quot; &amp; snapchat == &quot;No&quot; ~ &quot;No&quot;
+    ))
+
+# we calculate the proportion of &quot;Yes&quot; answers for snap_insta excluding NAs and group by gender and usage of instagram
+snap_insta_proportion &lt;- gss_adjusted %&gt;% 
+  # we group by gender and snap_insta in order to calculate the individual CIs later  
+  group_by(sex, snap_insta) %&gt;%
+  summarise(count = n()) %&gt;%   
+  filter(snap_insta == &quot;Yes&quot; | snap_insta == &quot;No&quot;) %&gt;%
+  mutate(share = count/sum(count)) # %&gt;% 
+  # filter(snap_insta ==&quot;Yes&quot;) 
+
+snap_insta_proportion %&gt;% 
+  # Use Kable package in order to transofrm into nice table
+  kbl(col.names = c(&quot;Gender&quot;, &quot;Snap_Insta User&quot;, &quot;Count&quot;, &quot;Share (%)&quot;)) %&gt;%
+  kable_material_dark() %&gt;%
+  kable_styling(fixed_thead = T, full_width = F, font_size = 14) %&gt;% 
+  row_spec(0, background = &quot;#363640&quot;, color = &quot;white&quot;)</code></pre>
+<table class=" lightable-material-dark table" style='font-family: "Source Sans Pro", helvetica, sans-serif; margin-left: auto; margin-right: auto; font-size: 14px; width: auto !important; margin-left: auto; margin-right: auto;'>
+<thead>
+<tr>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;color: white !important;background-color: #363640 !important;">
+Gender
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;color: white !important;background-color: #363640 !important;">
+Snap_Insta User
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;color: white !important;background-color: #363640 !important;">
+Count
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;color: white !important;background-color: #363640 !important;">
+Share (%)
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Female
+</td>
+<td style="text-align:left;">
+No
+</td>
+<td style="text-align:right;">
+447
+</td>
+<td style="text-align:right;">
+0.581
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Female
+</td>
+<td style="text-align:left;">
+Yes
+</td>
+<td style="text-align:right;">
+322
+</td>
+<td style="text-align:right;">
+0.419
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Male
+</td>
+<td style="text-align:left;">
+No
+</td>
+<td style="text-align:right;">
+411
+</td>
+<td style="text-align:right;">
+0.682
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Male
+</td>
+<td style="text-align:left;">
+Yes
+</td>
+<td style="text-align:right;">
+192
+</td>
+<td style="text-align:right;">
+0.318
+</td>
+</tr>
+</tbody>
+</table>
+<p>Now that we summarized the data and grouped by Gender and whether the person is using instagram or snapchat, we calculated the distribution of users for each gender.</p>
+<p><strong>Let’s calculate the Confidence Intervall…</strong></p>
+<pre class="r"><code># we calculate the ci by calculating the required variables 
+ci_gss &lt;- snap_insta_proportion %&gt;% 
+  # filter(snap_insta == &quot;Yes&quot;) %&gt;% 
+  summarise(snap_insta,
+            count,
+            sum = sum(count),
+            se_social = sqrt((share*(1-share)/sum(count))),
+            share,
+            # we calculate the t_critical for 95% CIs for men and women
+            t_critical = qt(0.975, count-1), 
+            margin_of_error = t_critical * se_social,
+            ci_lower = share - margin_of_error,
+            ci_higher = share + margin_of_error
+            ) %&gt;% 
+  filter(snap_insta == &quot;Yes&quot;) %&gt;% 
+  select(ci_lower, share, ci_higher)
+
+ci_gss %&gt;% 
+  kbl(col.names = c(&quot;Gender&quot;, &quot;Lower CI&quot;, &quot;Expected share&quot;, &quot;Upper CI&quot;)) %&gt;%
+  kable_material_dark() %&gt;%
+  kable_styling(fixed_thead = T, full_width = F, font_size = 14) %&gt;% 
+  row_spec(0, background = &quot;#363640&quot;, color = &quot;white&quot;)</code></pre>
+<table class=" lightable-material-dark table" style='font-family: "Source Sans Pro", helvetica, sans-serif; margin-left: auto; margin-right: auto; font-size: 14px; width: auto !important; margin-left: auto; margin-right: auto;'>
+<thead>
+<tr>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;color: white !important;background-color: #363640 !important;">
+Gender
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;color: white !important;background-color: #363640 !important;">
+Lower CI
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;color: white !important;background-color: #363640 !important;">
+Expected share
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;color: white !important;background-color: #363640 !important;">
+Upper CI
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Female
+</td>
+<td style="text-align:right;">
+0.384
+</td>
+<td style="text-align:right;">
+0.419
+</td>
+<td style="text-align:right;">
+0.454
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Male
+</td>
+<td style="text-align:right;">
+0.281
+</td>
+<td style="text-align:right;">
+0.318
+</td>
+<td style="text-align:right;">
+0.356
+</td>
+</tr>
+</tbody>
+</table>
+<p>Based on our sample set we expect <strong>~42% or Females</strong> to use instagram/snapchat with a 95% confidence intervall betweeen <strong>(38.4%, 45.4%)</strong>. For <strong>Males</strong> the expected share is <strong>~28%</strong> with a 95% CI between <strong>(28.1%, 35.6%)</strong>.</p>
+</div>
+<div id="population-proprtion-of-twitter-users-by-education-level" class="section level2">
+<h2>Population proprtion of Twitter users by education level</h2>
+<p>Next, we want to estimate the <em>population</em> proportion of Twitter users by education level in 2016.
+There are 5 education levels in variable <code>degree</code> which, in ascending order of years of education, are:</p>
+<ul>
+<li><code>Lt high school</code></li>
+<li><code>High School</code></li>
+<li><code>Junior college</code></li>
+<li><code>Bachelor</code></li>
+<li><code>Graduate</code></li>
+</ul>
+<p><strong>Let’s calculate the population proportion…</strong></p>
+<pre class="r"><code># we define the levels for the degree column by using a degree vector
+level_order &lt;- c(&quot;Lt high school&quot;, &quot;High school&quot;, &quot;Junior college&quot;, &quot;Bachelor&quot;, &quot;Graduate&quot;)
+
+# we define a non_university vector for the bachelor_graduate classification later on 
+non_university &lt;- c(&quot;Lt high school&quot;, &quot;High school&quot;, &quot;Junior college&quot;)
+
+twitter_adjusted &lt;- gss %&gt;% 
+  group_by(degree) %&gt;%
+  # we turn the the degree column from a character variable into a factor variable
+  mutate(
+    degree = factor(degree, 
+                    levels = level_order)
+    ) %&gt;% 
+  arrange(degree) %&gt;% 
+  # we create a bachelor_graduate column based on the degree 
+  mutate(bachelor_graduate = case_when(
+    degree == &quot;Bachelor&quot; ~ &quot;Yes&quot;, 
+    degree == &quot;Graduate&quot; ~ &quot;Yes&quot;,
+    degree %in% non_university ~ &quot;No&quot;
+    )) # %&gt;% 
+  # Filter to check NA values 
+  # filter(is.na(degree))
+  
+  # check if previous mutate function worked correctly
+  #group_by(degree) %&gt;% 
+  #summarize(count(bachelor_graduate == &quot;Yes&quot;))
+
+#twitter_adjusted
+
+# just an alternative possibility to filter out the NA rows for twitter/ bachelor_graduate
+# yes_no &lt;- c(&quot;Yes&quot;, &quot;No&quot;)
+#ci_twitter_2 &lt;- twitter_adjusted %&gt;% 
+#  group_by(twitter, bachelor_graduate) %&gt;%
+#  filter(twitter %in% yes_no &amp; bachelor_graduate %in% yes_no) 
+
+# we calculate the proportion of twitter users among bachelor_graduates
+twitter_bg_proportion &lt;- twitter_adjusted %&gt;% 
+  select(twitter, bachelor_graduate) %&gt;% 
+  group_by(bachelor_graduate, twitter) %&gt;%
+  filter(!is.na(bachelor_graduate),
+         twitter != &quot;NA&quot;,
+         bachelor_graduate == &quot;Yes&quot;) %&gt;% 
+  summarise(count = n()) %&gt;% 
+  mutate(share = count/sum(count))
+  
+#twitter_bg_proportion
+
+# we calculate the ci for bachelor_graduates regarding the usage of twitter
+ci_twitter &lt;- twitter_bg_proportion %&gt;%
+  summarise(count,
+            se_twitter = sqrt((share*(1-share)/sum(count))),
+            share, 
+            twitter,
+            t_critical = qt(0.975, count-1), 
+            margin_of_error = t_critical * se_twitter,
+            ci_lower = share - margin_of_error,
+            ci_higher = share + margin_of_error
+            ) %&gt;% 
+  select(twitter, ci_lower, share, ci_higher)
+
+#ci_twitter 
+
+ci_twitter %&gt;%
+  kbl(col.names = c(&quot;Bachelor-Master Grad&quot;, &quot;Twitter User&quot;, &quot;Lower CI&quot;, &quot;Expected share&quot;, &quot;Upper CI&quot;)) %&gt;%
+  kable_material(c(&quot;striped&quot;, &quot;hover&quot;)) %&gt;%
+  kable_styling(fixed_thead = T)</code></pre>
+<table class=" lightable-material lightable-striped lightable-hover table" style='font-family: "Source Sans Pro", helvetica, sans-serif; margin-left: auto; margin-right: auto; margin-left: auto; margin-right: auto;'>
+<thead>
+<tr>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+Bachelor-Master Grad
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+Twitter User
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+Lower CI
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+Expected share
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+Upper CI
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Yes
+</td>
+<td style="text-align:left;">
+No
+</td>
+<td style="text-align:right;">
+0.729
+</td>
+<td style="text-align:right;">
+0.767
+</td>
+<td style="text-align:right;">
+0.804
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Yes
+</td>
+<td style="text-align:left;">
+Yes
+</td>
+<td style="text-align:right;">
+0.195
+</td>
+<td style="text-align:right;">
+0.233
+</td>
+<td style="text-align:right;">
+0.271
+</td>
+</tr>
+</tbody>
+</table>
+<p>The 95% confidence intervals for Twitter/ Non-Twitter users among people with a bachelor or graduate degree do not overlap as the expected share of twitter users based on the sample set is ~77% and thus the CI will not overlap with the CI around the expected share of Non-Twitter users of ~23%.</p>
+</div>
+<div id="estimation-of-weekly-email-usage-of-americans" class="section level2">
+<h2>Estimation of weekly email usage of Americans</h2>
+<p>In the following we estimate the <em>population</em> parameter on time spent on email weekly of Americans.</p>
+<p><strong>Let’s manipulate the data and plot the email usage…</strong></p>
+<pre class="r"><code>#we change the NA strings into actual NA values
+gss_adjusted[gss_adjusted == &quot;NA&quot;] &lt;- NA
+
+# we create a new dataframe to calculate the time spent on email per week for the users
+gss_email &lt;- gss_adjusted %&gt;% 
+  na.omit() %&gt;% 
+  mutate(emailmin = as.integer(emailmin),
+         emailhr = as.integer(emailhr),
+         email = emailmin + emailhr*60)
+
+ggplot(gss_email, aes(email))+
+  geom_boxplot() +
+  labs(x = &quot;Minutes (per week)&quot;, title = &quot;Clear signs of outliers in the dataset influencing the mean e-mail usage&quot;, subtitle = &quot;Distribution of weekly email usage of Americans&quot;) +
+  theme_bw()</code></pre>
+<p><img src="/pages/gss/index_files/figure-html/email_usage-1.png" width="648" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>mean_median_email &lt;- gss_email %&gt;% 
+  summarise(mean = mean(email), median = median(email))
+
+mean_median_email %&gt;%
+  kbl(col.names = c(&quot;Mean min per week&quot;, &quot;Median min per week&quot;)) %&gt;%
+  kable_material_dark() %&gt;%
+  kable_styling(fixed_thead = T, full_width = F, font_size = 14) %&gt;% 
+  row_spec(0, background = &quot;#363640&quot;, color = &quot;white&quot;)</code></pre>
+<table class=" lightable-material-dark table" style='font-family: "Source Sans Pro", helvetica, sans-serif; margin-left: auto; margin-right: auto; font-size: 14px; width: auto !important; margin-left: auto; margin-right: auto;'>
+<thead>
+<tr>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;color: white !important;background-color: #363640 !important;">
+Mean min per week
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;color: white !important;background-color: #363640 !important;">
+Median min per week
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+445
+</td>
+<td style="text-align:right;">
+120
+</td>
+</tr>
+</tbody>
+</table>
+<p>Looking at the distribution of email minutes spent per week it is better to use the median number as a measure of the typical amount of time Americans spent. As can be observed in the graph above, there are several outliers leading to the expected difference of mean (445 min) vs. median (120 min).</p>
+<p><strong>Let’s calculate the CI using the bootstrap method…</strong></p>
+<pre class="r"><code># calculate bootstrap confidence interval 
+
+bootstrap_email_ci &lt;- gss_email %&gt;% 
+  # specify the variable of interest, here email minutes spent per week 
+  specify(response = email) %&gt;% 
+  generate(reps = 100, type=&quot;bootstrap&quot;) %&gt;% 
+  # choose median as variable to calculate 
+  calculate(stat = &quot;median&quot;) %&gt;% 
+  # calculate confidence interval
+  get_confidence_interval(level = 0.95, type = &quot;percentile&quot;) %&gt;% 
+  # transform from min into h + min as decimal
+  mutate(lower_ci = lower_ci/60, upper_ci = upper_ci/60)
+
+bootstrap_email_ci %&gt;%
+  kbl(col.names = c(&quot;Lower CI&quot;, &quot;Upper CI&quot;)) %&gt;%
+  kable_material_dark() %&gt;%
+  kable_styling(fixed_thead = T, full_width = F, font_size = 14) %&gt;% 
+  row_spec(0, background = &quot;#363640&quot;, color = &quot;white&quot;)</code></pre>
+<table class=" lightable-material-dark table" style='font-family: "Source Sans Pro", helvetica, sans-serif; margin-left: auto; margin-right: auto; font-size: 14px; width: auto !important; margin-left: auto; margin-right: auto;'>
+<thead>
+<tr>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;color: white !important;background-color: #363640 !important;">
+Lower CI
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;color: white !important;background-color: #363640 !important;">
+Upper CI
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+3
+</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code># Define variable to calculate hours and minutes seperately
+a &lt;- bootstrap_email_ci$lower_ci
+b &lt;- bootstrap_email_ci$upper_ci
+
+# use mod for decimals using modulo operator 
+lower_ci_mod &lt;- round(a%%1*60, digits = 0)
+# use int for integer
+lower_ci_int &lt;- a%/%1
+
+upper_ci_mod &lt;- round(b%%1*60, digits = 0)
+upper_ci_int &lt;- b%/%1</code></pre>
+<p>In the goven example we calculated the 95% confidence interval. A 99% confidence interval would be expected to be wider as this would indicate that the confidence intervall in 99% of the times should include the observed median (or mean) of the respective sample.</p>
+<pre><code>## [1] &quot;The median lower bound of the CI for usage of email is:  2  hours and 0 minutes&quot;</code></pre>
+<pre><code>## [1] &quot;The median upper bound of the CI for usage of email is:  3  hours and 0 minutes&quot;</code></pre>
+<p>Looking at the 95%-tile median confidence interval, it is interesting to note that the confidence interval is only an approximate value for the 95%-tile intervals. The reason for this lies in the fact that the median value would be given as the n/2 value of the sample. as the is no e.g. “45.5th” value of a dataset, the median confidence interval would output e.g. the nearest value, being the e.g. “46th” value of the sample. Thus, we get exact values of 2h and 3h for the CI respectively.</p>
+<p><em>Last updated:</em> 20 September, 2020</p>
+</div>
+</div>
