@@ -74,7 +74,7 @@ check_brexit_results <- head(brexit_results)
 check_brexit_results %>% 
   # Use Kable package in order to transofrm into nice table
   kbl(col.names = c("Seat", "Con_2015", "Lab_2015", "LD_2015", "Ukip_2015", "Leave_share (%)", "Born_in_UK", "Male", "Unemployed", "Degree", "Age_18to24")) %>%
-  kable_material(c("striped", "hover")) %>%
+  kable_material_dark() %>%
   kable_styling(fixed_thead = T, full_width = F, font_size = 14)
 ```
 
@@ -127,4 +127,4 @@ Looking at visualized data we can see that there seem to be clear differences in
 One always has to keep in mind that based on this basic visualization we canot draw definite conclusions regarding the party affiliation and Brexit voting behaviour. While there can be seen clear correlations, further analysis would be required to identify all or at least a high number of varying factors driving Brexit voter behaviour.  
 
 
-*Last updated:* "`r format(Sys.time(), '%d %B, %Y')`"
+*Last updated:* `r format(Sys.time(), '%d %B, %Y')`

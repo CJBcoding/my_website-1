@@ -103,9 +103,9 @@ check_brexit_results &lt;- head(brexit_results)
 check_brexit_results %&gt;% 
   # Use Kable package in order to transofrm into nice table
   kbl(col.names = c(&quot;Seat&quot;, &quot;Con_2015&quot;, &quot;Lab_2015&quot;, &quot;LD_2015&quot;, &quot;Ukip_2015&quot;, &quot;Leave_share (%)&quot;, &quot;Born_in_UK&quot;, &quot;Male&quot;, &quot;Unemployed&quot;, &quot;Degree&quot;, &quot;Age_18to24&quot;)) %&gt;%
-  kable_material(c(&quot;striped&quot;, &quot;hover&quot;)) %&gt;%
+  kable_material_dark() %&gt;%
   kable_styling(fixed_thead = T, full_width = F, font_size = 14)</code></pre>
-<table class=" lightable-material lightable-striped lightable-hover table" style='font-family: "Source Sans Pro", helvetica, sans-serif; margin-left: auto; margin-right: auto; font-size: 14px; width: auto !important; margin-left: auto; margin-right: auto;'>
+<table class=" lightable-material-dark table" style='font-family: "Source Sans Pro", helvetica, sans-serif; margin-left: auto; margin-right: auto; font-size: 14px; width: auto !important; margin-left: auto; margin-right: auto;'>
 <thead>
 <tr>
 <th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
@@ -393,7 +393,7 @@ ggplot(brexit_results_adjusted,  aes(x = Vote_share, y = leave_share, colour = P
 <h2>The interpretation</h2>
 <p>Looking at visualized data we can see that there seem to be clear differences in party affiliation of constituencies and the resulting voting behaviour regarding Brexit. As can be observed based on the linear trend lines, constituencies with higher share of <strong>Ukip votes</strong> in the 2015 election had, on average, a higher likelihood to vote for Brexit. Likewise, though with a lower observed correlation, can be observed for constituencies with a higher share of <strong>Conservative votes</strong>. On the contrary, constituencies with stronger affiliation with the <strong>Labour party</strong> and <strong>Liberal Democrats</strong> likely voted against Brexit.</p>
 <p>One always has to keep in mind that based on this basic visualization we canot draw definite conclusions regarding the party affiliation and Brexit voting behaviour. While there can be seen clear correlations, further analysis would be required to identify all or at least a high number of varying factors driving Brexit voter behaviour.</p>
-<p><em>Last updated:</em> “20 September, 2020”</p>
+<p><em>Last updated:</em> 20 September, 2020</p>
 </div>
 </div>
 
